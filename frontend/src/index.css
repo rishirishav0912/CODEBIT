@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@property --border-angle {
+    inherits: false;
+    initial-value: 0deg;
+    syntax: '<angle>';
+}
+
+.scroll-color{
+    scrollbar-color: #7B7B7B transparent;
+  }
+  
+  .react-resizable-handle{
+    height: 30px !important;
+    width: 30px !important;
+    background-image: url("C:\Users\hp\Desktop\project7thsem\CodeBIT\frontend\public\images\fit_page_height_24dp_0DB276_FILL0_wght400_GRAD0_opsz24.png") !important;
+    background-size: contain !important;
+    transform: none !important;
+  }
+  
+  .react-resizable-handle-w{
+    transform: rotate(90deg) !important;
+  }
+  
+  .react-resizable-handle-s,.react-resizable-handle-e{
+    background-image: none !important;
+  }
+/* 
+@layer base {
+    body {
+        background-color: black;
+    }
+} */
