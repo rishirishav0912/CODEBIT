@@ -171,7 +171,7 @@ const HomeComponent = () => {
                                                     {teams.map((team, idx) => (
                                                         <div
                                                             key={idx}
-                                                            className={`mb-6 border-b-2 border-[#0a9160] pb-6 text-lg text-slate-200 ${idx === 0 ? "border-t-2 border-[#0a9160] pt-6" : ""
+                                                            className={`mb-6 border-b-2 border-[#333333] pb-6 text-lg text-slate-200 ${idx === 0 ? "border-t-2 border-[#333333] pt-6" : ""
                                                                 }`}
                                                         >
                                                             {/* Rank */}
@@ -202,8 +202,7 @@ const HomeComponent = () => {
                                                                 {team.members.map((member, memberIdx) => (
                                                                     <div
                                                                         key={memberIdx}
-                                                                        className={`py-1 text-center capitalize rounded ${memberIdx % 2 === 0 ? "bg-gray-500" : "bg-gray-600"
-                                                                            }`}
+                                                                        className={`py-1 text-center capitalize rounded text-[#34D399] bg-[#1D332D] hover:bg-[#1b2f29]  border-2 border-[#174337]`}
                                                                     >
                                                                         <p>{member.name}</p>
 
