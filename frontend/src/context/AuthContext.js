@@ -1,4 +1,5 @@
 import { createContext, useEffect, useReducer } from "react";
+import Login from "../pages/Login";
 
 export const AuthContext = createContext();
 
@@ -24,11 +25,13 @@ export const AuthContextProvider = ({ children }) => {
     })
 
     useEffect(() => {
+
         const user = JSON.parse(localStorage.getItem('user'));
 
         if (user) {
             dispatch({ type: 'LOGIN', payload: user });
         }
+
     }, [])
 
     console.log("Authentication state :", state);

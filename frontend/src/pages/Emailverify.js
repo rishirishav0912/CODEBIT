@@ -31,9 +31,9 @@ const Emailverify = () => {
     return (
         <Fragment>
             {validUrl ? (
-                <div className="w-screen h-screen flex flex-col items-center justify-center">
+                <div className="bg-[#171717] w-screen h-screen flex flex-col items-center justify-center">
                     <img src="/path/to/success-image.png" alt="Email Verified Successfully" className="w-32 h-32 mb-6" />
-                    <h1 className="text-2xl font-semibold text-gray-800 mb-6">
+                    <h1 className="text-2xl font-semibold text-[#0DB276] mb-6">
                         Email Verified Successfully
                     </h1>
                     <Link to="/login">
@@ -43,7 +43,7 @@ const Emailverify = () => {
                     </Link>
                 </div>
             ) : (
-                <h1 className="text-3xl font-bold text-red-600 text-center mt-16">
+                <h1 className="bg-[#171717] w-full h-[100vh] flex items-center justify-center text-3xl font-bold text-red-600">
                     404 Not Found
                 </h1>
             )}

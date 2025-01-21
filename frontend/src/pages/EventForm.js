@@ -12,7 +12,7 @@ const EventForm = () => {
     const [contests, setContests] = useState([]);
     const [teamName, setTeamName] = useState("");
     const [loading, setLoading] = useState(false);
-    const {emailBroadcast} = useEmailBroadcast();
+    const { emailBroadcast } = useEmailBroadcast();
 
     const user = JSON.parse(localStorage.getItem("user"));
     const token = user?.tokene || null;
@@ -89,22 +89,22 @@ const EventForm = () => {
     };
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
-        if (!tit || !desc ||  (announcementType === "normal" &&  !deadline)) {
+
+        if (!tit || !desc || (announcementType === "normal" && !deadline)) {
             alert("Title, description, and deadline are required for normal announcements.");
             return;
         }
-    
+
         if (org.some((o) => !o.name || !o.email || !o.phone)) {
             alert("Please fill in all organizer details.");
             return;
         }
-    
-        if ((announcementType === "hackathon" ) && teamNames.some((name) => !name)) {
+
+        if ((announcementType === "hackathon") && teamNames.some((name) => !name)) {
             alert("Please provide all winner team names.");
             return;
         }
-    
+
         const formData = {
             tit,
             desc,
@@ -112,9 +112,9 @@ const EventForm = () => {
             org,
             anType: announcementType,
             selEv: (announcementType === "hackathon" || announcementType === "contest") ? selectedEvent : undefined,
-            tNames: (announcementType === "hackathon" ) ? teamNames : undefined,
+            tNames: (announcementType === "hackathon") ? teamNames : undefined,
         };
-    
+
         try {
             console.log(formData);
             const response = await fetch("http://localhost:4000/auth/addevents", {
@@ -125,7 +125,7 @@ const EventForm = () => {
                 },
                 body: JSON.stringify(formData),
             });
-    
+
             if (response.ok) {
                 alert("Event created successfully!");
                 // email broadcasting logic here
@@ -147,80 +147,173 @@ const EventForm = () => {
             console.error("Submission error:", error);
         }
     };
-    
-   
-   
 
-     
-      
 
     return (
-        <div className="min-h-screen bg-[#181C21] text-slate-300">
-            <header className="px-8 pt-8 pb-4 bg-[#181C21]">
-                <h1 className="text-3xl font-bold text-[#0DB276] text-center">Event Registration</h1>
-            </header>
+        <div className="min-h-screen bg-[#171717] w-full flex justify-center p-8">
+            <div className="h-full w-[50vw] border-2 border-[#333333] bg-[#262626] text-[#E5E5E5] rounded-md">
+                <header className="px-8 pt-8 pb-4 border-b-2 border-b-[#333333]">
+                    <h1 className="text-3xl font-bold text-[#0DB276] text-center">Event Registration</h1>
+                </header>
 
-            <main className="px-8 py-8">
-                <form onSubmit={handleSubmit} className="max-w-4xl mx-auto space-y-6">
-                    {/* Announcement Type */}
-                    <div>
-                        <label className="block text-m font-medium mb-2">Announcement Type</label>
-                        <select
-                            value={announcementType}
-                            onChange={(e) => setAnnouncementType(e.target.value)}
-                            className="w-full bg-[#21272e] text-slate-300 px-4 py-2 rounded-md focus:outline-none"
-                        >
-                            <option value="normal">Normal Announcement</option>
-                            <option value="hackathon">Hackathon Result Announcement</option>
-                            <option value="contest">Contest Result Announcement</option>
-                        </select>
-                    </div>
-
-                    {/* Event Name */}
-                    {(announcementType === "hackathon" || announcementType === "contest") && (
+                <main className="px-8 py-8">
+                    <form onSubmit={handleSubmit} className="max-w-4xl mx-auto space-y-6">
+                        {/* Announcement Type */}
                         <div>
-                            <label className="block text-m font-medium mb-2">Event Name</label>
+                            <label className="block text-m font-medium mb-2">Announcement Type</label>
                             <select
-                                value={selectedEvent}
-                                onChange={(e) => setSelectedEvent(e.target.value)}
-                                className="w-full bg-[#21272e] text-slate-300 px-4 py-2 rounded-md focus:outline-none"
+                                value={announcementType}
+                                onChange={(e) => setAnnouncementType(e.target.value)}
+                                className="w-full bg-[#171717] text-slate-300 px-4 py-2 rounded-md focus:outline-none"
                             >
-                                <option value="">
-                                    Select {announcementType === "hackathon" ? "Hackathon" : "Contest"}
-                                </option>
-                                {loading ? (
-                                    <option>Loading...</option>
-                                ) : (
-                                    (announcementType === "hackathon" ? hackathons : contests).map((event) => (
-                                        <option key={event.id} value={event.id}>
-                                            {event.name}
-                                        </option>
-                                    ))
-                                )}
+                                <option value="normal">Normal Announcement</option>
+                                <option value="hackathon">Hackathon Result Announcement</option>
+                                <option value="contest">Contest Result Announcement</option>
                             </select>
                         </div>
-                    )}
+
+                        {/* Event Name */}
+                        {(announcementType === "hackathon" || announcementType === "contest") && (
+                            <div>
+                                <label className="block text-m font-medium mb-2">Event Name</label>
+                                <select
+                                    value={selectedEvent}
+                                    onChange={(e) => setSelectedEvent(e.target.value)}
+                                    className="w-full bg-[#171717] text-slate-300 px-4 py-2 rounded-md focus:outline-none"
+                                >
+                                    <option value="">
+                                        Select {announcementType === "hackathon" ? "Hackathon" : "Contest"}
+                                    </option>
+                                    {loading ? (
+                                        <option>Loading...</option>
+                                    ) : (
+                                        (announcementType === "hackathon" ? hackathons : contests).map((event) => (
+                                            <option key={event.id} value={event.id}>
+                                                {event.name}
+                                            </option>
+                                        ))
+                                    )}
+                                </select>
+                            </div>
+                        )}
 
 
-                    {/* Winner Team name */}
-                    {(announcementType === "hackathon") && (
+                        {/* Winner Team name */}
+                        {(announcementType === "hackathon") && (
+                            <div>
+                                <label className="block text-m font-medium mb-2">Winners Team Name</label>
+                                {teamNames.map((email, index) => (
+                                    <div key={index} className="flex gap-4 mb-2">
+                                        <input
+                                            type="text"
+                                            value={email}
+                                            onChange={(e) => handleteamNameChange(index, e.target.value)}
+                                            className="w-full bg-[#171717] text-slate-300 px-4 py-2 rounded-md focus:outline-none"
+                                            placeholder={`Rank ${index + 1}`}
+                                        />
+                                        {/* Only show the delete button if the index is not 0 */}
+                                        {index !== 0 && (
+                                            <button
+                                                type="button"
+                                                onClick={() => removeTeamName(index)}  // Function to remove team name
+                                                className="text-[#0DB276] rounded-md px-2 p-1 hover:cursor-pointer"
+                                            >
+                                                X
+                                            </button>
+                                        )}
+                                    </div>
+                                ))}
+                                <button
+                                    type="button"
+                                    onClick={addteamName}
+                                    className="px-4 py-2 mt-2 rounded-md text-[#34D399] bg-[#1D332D] hover:bg-[#1b2f29]  border-2 border-[#174337]"
+                                >
+                                    + Add Another Team Name
+                                </button>
+                            </div>
+
+                        )}
+
+
+                        {/* Title */}
+                        {(
+                            <div>
+                                <label className="block text-m font-medium mb-2">Title</label>
+                                <input
+                                    type="text"
+                                    value={tit}
+                                    onChange={(e) => setTit(e.target.value)}
+                                    className="w-full bg-[#171717] text-slate-300 px-4 py-2 rounded-md focus:outline-none"
+                                    placeholder="Event Title"
+                                />
+                            </div>
+                        )}
+                        {/* Description */}
+                        {(
+                            <div>
+                                <label className="block text-m font-medium mb-2">Description</label>
+                                <textarea
+                                    rows="4"
+                                    value={desc}
+                                    onChange={(e) => setDesc(e.target.value)}
+                                    className="w-full bg-[#171717] text-slate-300 px-4 py-2 rounded-md focus:outline-none"
+                                    placeholder="Event Description"
+                                ></textarea>
+                            </div>
+                        )}
+
+                        {/* Deadline */}
+                        {(announcementType === "normal") && (
+                            <div>
+                                <label className="block text-m font-medium mb-2">Deadline</label>
+                                <input
+                                    type="text"
+                                    value={deadline}
+                                    onChange={(e) => setDeadline(e.target.value)}
+                                    className="w-full bg-[#171717] text-slate-300 px-4 py-2 rounded-md focus:outline-none"
+                                    placeholder="Deadline (e.g., 2024-12-20)"
+                                />
+                            </div>
+                        )}
+
+                        {/* Organizers */}
                         <div>
-                            <label className="block text-m font-medium mb-2">Winners Team Name</label>
-                            {teamNames.map((email, index) => (
+                            <label className="block text-m font-medium mb-2">Organizers</label>
+                            {org.map((o, index) => (
                                 <div key={index} className="flex gap-4 mb-2">
                                     <input
                                         type="text"
-                                        value={email}
-                                        onChange={(e) => handleteamNameChange(index, e.target.value)}
-                                        className="w-full bg-[#21272e] text-slate-300 px-4 py-2 rounded-md focus:outline-none"
-                                        placeholder={`Rank ${index + 1}`}
+                                        className="w-1/2 bg-[#171717] text-slate-300 px-4 py-2 rounded-md focus:outline-none"
+                                        placeholder="Organizer Name"
+                                        value={o.name}
+                                        onChange={(e) =>
+                                            handleOrganizerChange(index, "name", e.target.value)
+                                        }
+                                    />
+                                    <input
+                                        type="email"
+                                        className="w-1/2 bg-[#171717] text-slate-300 px-4 py-2 rounded-md focus:outline-none"
+                                        placeholder="Organizer Email"
+                                        value={o.email}
+                                        onChange={(e) =>
+                                            handleOrganizerChange(index, "email", e.target.value)
+                                        }
+                                    />
+                                    <input
+                                        type="tel"
+                                        className="w-1/2 bg-[#171717] text-slate-300 px-4 py-2 rounded-md focus:outline-none"
+                                        placeholder="Organizer Phone"
+                                        value={o.phone}
+                                        onChange={(e) =>
+                                            handleOrganizerChange(index, "phone", e.target.value)
+                                        }
                                     />
                                     {/* Only show the delete button if the index is not 0 */}
                                     {index !== 0 && (
                                         <button
                                             type="button"
-                                            onClick={() => removeTeamName(index)}  // Function to remove team name
-                                            className="text-[#0DB276] rounded-md px-2 p-1 hover:cursor-pointer"
+                                            onClick={() => removeOrganizer(index)} // Function to remove the organizer
+                                            className="text-[#34D399] bg-[#1D332D] hover:bg-[#1b2f29]  border-2 border-[#174337] rounded-md px-2 p-1 hover:cursor-pointer"
                                         >
                                             X
                                         </button>
@@ -229,123 +322,27 @@ const EventForm = () => {
                             ))}
                             <button
                                 type="button"
-                                onClick={addteamName}
-                                className="px-4 py-2 mt-2 rounded-md bg-[#0DB276] hover:bg-[#0aa46c]"
+                                onClick={addOrganizer}
+                                className="px-4 py-2 mt-2 rounded-md text-[#34D399] bg-[#1D332D] hover:bg-[#1b2f29]  border-2 border-[#174337]"
                             >
-                                + Add Another Team Name
+                                + Add another organizer
                             </button>
                         </div>
 
-                    )}
 
 
-                    {/* Title */}
-                    { (
-                        <div>
-                            <label className="block text-m font-medium mb-2">Title</label>
-                            <input
-                                type="text"
-                                value={tit}
-                                onChange={(e) => setTit(e.target.value)}
-                                className="w-full bg-[#21272e] text-slate-300 px-4 py-2 rounded-md focus:outline-none"
-                                placeholder="Event Title"
-                            />
+                        {/* Submit Button */}
+                        <div className="w-fit mx-auto">
+                            <button
+                                type="submit"
+                                className="w-[20vw] text-[#34D399] bg-[#1D332D] hover:bg-[#1b2f29]  border-2 border-[#174337] py-2 rounded-md font-medium"
+                            >
+                                Submit
+                            </button>
                         </div>
-                    )}
-                    {/* Description */}
-                    { (
-                        <div>
-                            <label className="block text-m font-medium mb-2">Description</label>
-                            <textarea
-                                rows="4"
-                                value={desc}
-                                onChange={(e) => setDesc(e.target.value)}
-                                className="w-full bg-[#21272e] text-slate-300 px-4 py-2 rounded-md focus:outline-none"
-                                placeholder="Event Description"
-                            ></textarea>
-                        </div>
-                    )}
-
-                    {/* Deadline */}
-                    {(announcementType === "normal") && (
-                        <div>
-                            <label className="block text-m font-medium mb-2">Deadline</label>
-                            <input
-                                type="text"
-                                value={deadline}
-                                onChange={(e) => setDeadline(e.target.value)}
-                                className="w-full bg-[#21272e] text-slate-300 px-4 py-2 rounded-md focus:outline-none"
-                                placeholder="Deadline (e.g., 2024-12-20)"
-                            />
-                        </div>
-                    )}
-
-                    {/* Organizers */}
-                    <div>
-                        <label className="block text-m font-medium mb-2">Organizers</label>
-                        {org.map((o, index) => (
-                            <div key={index} className="flex gap-4 mb-2">
-                                <input
-                                    type="text"
-                                    className="w-1/2 bg-[#21272e] text-slate-300 px-4 py-2 rounded-md focus:outline-none"
-                                    placeholder="Organizer Name"
-                                    value={o.name}
-                                    onChange={(e) =>
-                                        handleOrganizerChange(index, "name", e.target.value)
-                                    }
-                                />
-                                <input
-                                    type="email"
-                                    className="w-1/2 bg-[#21272e] text-slate-300 px-4 py-2 rounded-md focus:outline-none"
-                                    placeholder="Organizer Email"
-                                    value={o.email}
-                                    onChange={(e) =>
-                                        handleOrganizerChange(index, "email", e.target.value)
-                                    }
-                                />
-                                <input
-                                    type="tel"
-                                    className="w-1/2 bg-[#21272e] text-slate-300 px-4 py-2 rounded-md focus:outline-none"
-                                    placeholder="Organizer Phone"
-                                    value={o.phone}
-                                    onChange={(e) =>
-                                        handleOrganizerChange(index, "phone", e.target.value)
-                                    }
-                                />
-                                {/* Only show the delete button if the index is not 0 */}
-                                {index !== 0 && (
-                                    <button
-                                        type="button"
-                                        onClick={() => removeOrganizer(index)} // Function to remove the organizer
-                                        className="text-[#0DB276] rounded-md px-2 p-1 hover:cursor-pointer"
-                                    >
-                                        X
-                                    </button>
-                                )}
-                            </div>
-                        ))}
-                        <button
-                            type="button"
-                            onClick={addOrganizer}
-                            className="px-4 py-2 mt-2 rounded-md bg-[#0DB276] hover:bg-[#0aa46c]"
-                        >
-                            + Add another organizer
-                        </button>
-                    </div>
-
-
-
-                    {/* Submit Button */}
-                    <div>
-                        <button
-                            type="submit"
-                            className="w-full bg-[#0DB276] text-white px-4 py-2 rounded-md font-medium"
-                        >
-                            Submit
-                        </button>
-                    </div>
-                </form>
-            </main>
+                    </form>
+                </main>
+            </div>
         </div>
     );
 };

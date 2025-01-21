@@ -29,13 +29,13 @@ const handleCustomInput = async (customInput, sourceCode, languageId) => {
         console.log(submissionData);
         console.log(token);
 
-        // Poll the Judge0 API for the result
         const resultData = await checkSubmissionStatus(token);
 
         // Determine if the output matches the expected output
-        return { stdout: resultData.stdout, error: resultData.stderr }
+        return { stdout: resultData.stdout, error: resultData.stderr, compile_output: resultData.compile_output, message: resultData.message }
     } catch (error) {
         // Catch unexpected errors for this test case
+        console.log(error);
         return { error: error.message }
     }
 
@@ -74,6 +74,7 @@ const handleTestCase = async (testCase, sourceCode, languageId) => {
         console.log(token);
 
         // Poll the Judge0 API for the result
+        
         const resultData = await checkSubmissionStatus(token);
 
         // Determine if the output matches the expected output
@@ -85,7 +86,7 @@ const handleTestCase = async (testCase, sourceCode, languageId) => {
             status: isTLE ? "Time Limit Exceeded" : resultData.status.description,
             actualOutput: resultData.stdout,
             isCorrect: isCorrect && !isTLE, // Mark false if TLE occurs
-            error: resultData.compile_output || resultData.stderr || null,
+            error: resultData.compile_output || resultData.stderr || resultData.message,
         };
     } catch (error) {
         // Catch unexpected errors for this test case
@@ -104,10 +105,11 @@ const handleTestCase = async (testCase, sourceCode, languageId) => {
 // Polling function to check the status of a submission
 const checkSubmissionStatus = async (token) => {
     const MAX_RETRIES = 15; // Maximum number of retries
-    const DELAY_MS = 4000; // Delay between retries in milliseconds
+    const DELAY_MS = 2000; // Delay between retries in milliseconds
 
     for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
         try {
+
             // Fetch the status of the submission
             const resultResponse = await fetch(`http://${instanceDetails.ipAddress}:2358/submissions/${token}`, { //${process.env.JUDGE0_API_URL}
                 method: 'GET',

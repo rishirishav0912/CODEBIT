@@ -8,41 +8,71 @@ import CodeZoomInOut from "./CodeZoomInOut";
 import { useCodeContext } from "../hooks/useCodeContext";
 import useCodeSubmission from "../hooks/useCodeSubmission";
 import useCustomIO from "../hooks/useCustomIO";
+import useContest from "../hooks/useContest";
 
 const CodeEditor = ({ w, h, contestId, problemId }) => {
   const [language, setLanguage] = useState("cpp");
   const [code, setCode] = useState(`// write your solution here`);
   const [fontSize, setFontSize] = useState(14);
 
-  const {codeSubmitted, customIOSubmitted, customInput} = useCodeContext();
+  const { codeSubmitted, customIOSubmitted, customInput } = useCodeContext();
+  const [deadline, setDeadline] = useState(null);
   const { handleCodeSubmission } = useCodeSubmission();
   const { submitCustomInput } = useCustomIO();
+  const { fetchContestData } = useContest()
 
 
   useEffect(() => {
-    
+
     if (language === "python") {
       setCode(`# write your solution here`)
     }
-    else{
+    else {
       setCode(`// write your solution here`)
-    } 
+    }
 
-  }, [language]);
+    if (contestId) {
+      try {
+        const getcontestData = async ()=>{
+          const contestData = await fetchContestData(contestId);
+          setDeadline(contestData.endTime);
+        }
+        getcontestData();
+      }
+      catch (error) {
+        console.log(error);
+      }
+
+    }
+
+  }, [language, contestId]);
 
   useEffect(() => {
+    const currentTime = new Date();
+    const contestDeadline = new Date(deadline);
     if (codeSubmitted) {
-      console.log(code,language)
-        handleCodeSubmission(code,language,contestId,problemId);
+      console.log(code, language)
+      // fetch endtime using contestId and if current Time > deadline then alert("contest has ended")
+      if (contestDeadline <= currentTime) {
+        alert(`Contest has ended.
+          No further Submissions can take place.
+          Return to problem page`);
+        return;
+      }
+      handleCodeSubmission(code, language, contestId, problemId);
     }
-    if(customIOSubmitted){
-        submitCustomInput(code,language,customInput);
+    if (customIOSubmitted) {
+      if (contestDeadline <= currentTime) {
+        alert("Contest has ended. No further Submissions can take place");
+        return;
+      }
+      submitCustomInput(code, language, customInput);
     }
-}, [codeSubmitted, customIOSubmitted]);
+  }, [codeSubmitted, customIOSubmitted]);
 
 
 
- 
+
   return (
     <ResizableBox className="h-full w-full overflow-hidden"
       height={h * .72}

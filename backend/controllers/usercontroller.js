@@ -1,6 +1,6 @@
 const { handleTestCase, handleCustomInput } = require('../helperFunctions/contestSubmissionHelpers');
 const StudentRegister = require("../models/userSchema");
-const Problem = require("../models/problemSchema")
+const Contest = require("../models/ContestSchema");
 //const Problem = require('../models/Problem'); // MongoDB Problem model
 
 
@@ -14,10 +14,6 @@ const runCustomIO = async (req, res) => {
       return res.status(400).json({ error: "Source code is required." });
     }
 
-    // Validate problem data
-    if (!customInput) {
-      return res.status(400).json({ error: "No custom input available for this problem." });
-    }
     if (!languageId) {
       return res.status(400).json({ error: "Language ID is not defined for this problem." });
     }
@@ -26,7 +22,7 @@ const runCustomIO = async (req, res) => {
     // Execute for custom input
     const results = await handleCustomInput(customInput, sourceCode, languageId);
 
-    return res.status(200).json({output: results})
+    return res.status(200).json({ output: results })
   }
   catch (error) {
     return res.status(400).json({ error });
@@ -46,7 +42,9 @@ const makeSubmission = async (req, res) => {
 
   try {
     // Fetch the problem and its test cases from the database
-    const problem = await Problem.findById(problemId);
+    const contest = await Contest.findById(contestId);
+
+    const problem = contest.problems.find((problem) => problem._id.toHexString() === problemId);
 
     if (!problem) {
       return res.status(404).json({ error: "Problem not found." });
@@ -57,11 +55,18 @@ const makeSubmission = async (req, res) => {
     if (!user) {
       return res.status(400).json({ error: "user not fetched" });
     }
-    const submissions = user.cnthis.find((cnt) => cnt._id === contestId).submiss;
-    const state = submissions.find((submission) => submission.pid === problemId).state;
 
-    //if problem already, submission will not take place.
-    if (state === "A") return res.status(400).json({ error: "problem already accepted, cannot be submitted again" })
+    const submissions = user.cnthis.find((cnt) => cnt.cntid === contestId).submiss;
+
+    const latestSubmissiom = submissions.find((submission) => submission.pid === problemId) || null;
+
+    if (latestSubmissiom !== null) {
+      const state = latestSubmissiom.state;
+
+      //if problem already, submission will not take place.
+      if (state === "A") return res.status(400).json({ error: "problem already accepted, cannot be submitted again" })
+
+    }
 
     const { testcs, pnt } = problem;
     const testCases = testcs;
@@ -81,7 +86,7 @@ const makeSubmission = async (req, res) => {
       return res.status(400).json({ error: "Language ID is not defined for this problem." });
     }
 
-
+    console.log(testCases, sourceCode, languageId);
     // Execute all test cases concurrently
     const results = await Promise.all(testCases.map((testcase) => handleTestCase(testcase, sourceCode, languageId)));
 
@@ -91,7 +96,7 @@ const makeSubmission = async (req, res) => {
       await StudentRegister.findOneAndUpdate(
         { _id: userId, "cnthis.cntid": contestId },
         { $inc: { "cnthis.$.point": points } }
-      ).then(() => {
+      ).then(async() => {
         console.log("problem accepted successfully");
 
         submissions.unshift({
@@ -99,6 +104,8 @@ const makeSubmission = async (req, res) => {
           subtm: (new Date()),
           state: "A",
         })
+
+        await user.save();
       }).catch((err) => console.log(err));
     }
     else {
@@ -109,6 +116,8 @@ const makeSubmission = async (req, res) => {
         subtm: (new Date()),
         state: "W"
       })
+
+      await user.save();
     }
 
     // Return the results

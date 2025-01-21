@@ -1,18 +1,20 @@
 import ContestHackathonEvents from "../components/ContestHackathonEvents";
 import AddEvents from "../components/AddEvents";
 import { useParams } from "react-router-dom";
+import Navbar from "../components/Navbar";
 const ContestHackathon = () => {
     const { feat } = useParams();
     const userType = JSON.parse(localStorage.getItem("user"))?.userType || "null";
     return (
 
-        <div className="flex flex-wrap flex-col items-center justify-center bg-[#181C21] px-4 py-10 w-full ">
-            <div className="flex flex-wrap flex-col gap-16 items-start bg-[#181C21] text-slate-300 rounded-2xl box-border w-[65vw]  ">
+        <div className="flex bg-[#181C21]s bg-[#171717] w-full ">
+            <Navbar />
+            <div className="flex flex-wrap flex-col gap-16 items-start bg-[#181C21]s bg-[#171717] text-slate-300 rounded-2xl box-border w-[65vw] ml-20 ">
                 <div className="flex justify-between w-[100%] ">
-                    <div className="w-[70%] ">
+                    <div className="w-[70%]">
                         <ContestHackathonEvents UP="upcoming" feat={feat} />
                     </div>
-                    <div className="w-[28%] ">
+                    <div className="w-[28%] ml-40">
                         {userType === "admin" ? <AddEvents feat={feat} /> : null}
                     </div>
                 </div>
@@ -21,7 +23,7 @@ const ContestHackathon = () => {
                 </div>
             </div>
 
-        </div >
+        </div>
     );
 };
 export default ContestHackathon;

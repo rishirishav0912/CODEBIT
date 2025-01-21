@@ -47,12 +47,12 @@ const EditHackathon = () => {
                     hackathonName: data.hackName || "",
                     teamSize: data.tSize || "",
                     registrationTimeline: {
-                        start:  formatDate(data.regTime?.start) || "",
+                        start: formatDate(data.regTime?.start) || "",
                         end: formatDate(data.regTime?.end) || "",
                     },
                     hackathonTimeline: {
-                        start:  formatDate(data.hackTime?.start) || "",
-                        end:formatDate(data.hackTime?.end) || "",
+                        start: formatDate(data.hackTime?.start) || "",
+                        end: formatDate(data.hackTime?.end) || "",
                     },
                     allowVideoLink: data.allVidLink || false,
                     allowLiveDeploymentLink: data.allLiveDepLink || false,
@@ -117,11 +117,11 @@ const EditHackathon = () => {
                     body: JSON.stringify(formData),
                 }
             );
-    
+
             if (!response.ok) {
                 throw new Error(`Failed to edit hackathon: ${response.statusText}`);
             }
-    
+
             const data = await response.json();
             alert("Hackathon details updated successfully!");
         } catch (err) {
@@ -139,169 +139,179 @@ const EditHackathon = () => {
     }
 
     return (
-        <div className="min-h-screen bg-[#181C21] text-slate-300">
-            <div className="max-w-4xl mx-auto p-6">
-                <h2 className="text-5xl font-semibold mb-8 tracking-wider text-[#0DB276]">
-                    Edit Hackathon Details
-                </h2>
-                <form className="space-y-8">
-                    {/* Hackathon Name */}
-                    <div>
-                        <label className="block text-xl font-medium mb-2">
-                            Hackathon Name:
-                        </label>
-                        <input
-                            type="text"
-                            value={formData.hackathonName}
-                            onChange={(e) =>
-                                handleInputChange("hackathonName", e.target.value)
-                            }
-                            required
-                            className="w-full p-3 rounded bg-[#212830] border border-transparent placeholder-slate-500 focus:border-[#0DB276] focus:outline-none"
-                        />
-                    </div>
-
-                    {/* Team Size */}
-                    <div>
-                        <label className="block text-xl font-medium mb-2">
-                            Team Size:
-                        </label>
-                        <input
-                            type="number"
-                            value={formData.teamSize}
-                            onChange={(e) =>
-                                handleInputChange("teamSize", e.target.value)
-                            }
-                            required
-                            className="w-full p-3 rounded bg-[#212830] border border-transparent placeholder-slate-500 focus:border-[#0DB276] focus:outline-none"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-xl font-medium mb-2">
-                            Registration Timeline:
-                        </label>
-                        <div className="flex space-x-4">
+        <div className="min-h-screen bg-[#171717] w-full flex justify-center p-8">
+            <div className="h-full w-[50vw] border-2 border-[#333333] bg-[#262626] text-[#E5E5E5] rounded-md">
+                <div className="max-w-4xl mx-auto p-6">
+                    <h2 className="text-3xl border-b-2 border-b-[#333333] font-semibold mb-6 py-2 tracking-wider text-[#0DB276] text-center">
+                        Edit Hackathon Details
+                    </h2>
+                    <form className="space-y-8">
+                        {/* Hackathon Name */}
+                        <div>
+                            <label className="block text-xl font-medium mb-2">
+                                Hackathon Name:
+                            </label>
                             <input
-                                type="datetime-local"
-                                value={formData.registrationTimeline.start}
+                                type="text"
+                                value={formData.hackathonName}
                                 onChange={(e) =>
-                                    handleInputChange(
-                                        "registrationTimeline.start",
-                                        e.target.value
-                                    )
+                                    handleInputChange("hackathonName", e.target.value)
                                 }
                                 required
-                                className="w-1/2 p-3 rounded bg-[#212830] border border-transparent placeholder-slate-500 focus:border-[#0DB276] focus:outline-none"
-                            />
-                            <input
-                                type="datetime-local"
-                                value={formData.registrationTimeline.end}
-                                onChange={(e) =>
-                                    handleInputChange(
-                                        "registrationTimeline.end",
-                                        e.target.value
-                                    )
-                                }
-                                required
-                                className="w-1/2 p-3 rounded bg-[#212830] border border-transparent placeholder-slate-500 focus:border-[#0DB276] focus:outline-none"
+                                className="w-full p-3 rounded bg-[#171717] border
+                                border-transparent focus:border-[#0DB276]  focus:outline-none placeholder-[#393530]"
                             />
                         </div>
-                    </div>
-                    {/* Registration Timeline */}
-                    <div>
-                        <label className="block text-xl font-medium mb-2">
-                            Hackathon Timeline:
-                        </label>
-                        <div className="flex space-x-4">
+
+                        {/* Team Size */}
+                        <div>
+                            <label className="block text-xl font-medium mb-2">
+                                Team Size:
+                            </label>
                             <input
-                                type="datetime-local"
-                                value={formData.hackathonTimeline.start}
+                                type="number"
+                                value={formData.teamSize}
                                 onChange={(e) =>
-                                    handleInputChange(
-                                        "hackathonTimeline.start",
-                                        e.target.value
-                                    )
+                                    handleInputChange("teamSize", e.target.value)
                                 }
                                 required
-                                className="w-1/2 p-3 rounded bg-[#212830] border border-transparent placeholder-slate-500 focus:border-[#0DB276] focus:outline-none"
-                            />
-                            <input
-                                type="datetime-local"
-                                value={formData.hackathonTimeline.end}
-                                onChange={(e) =>
-                                    handleInputChange(
-                                        "hackathonTimeline.end",
-                                        e.target.value
-                                    )
-                                }
-                                required
-                                className="w-1/2 p-3 rounded bg-[#212830] border border-transparent placeholder-slate-500 focus:border-[#0DB276] focus:outline-none"
+                                className="w-full p-3 rounded bg-[#171717] border
+                                border-transparent focus:border-[#0DB276]  focus:outline-none placeholder-[#393530]"
                             />
                         </div>
-                    </div>
-
-                    {/* Themes Section */}
-                    <div>
-                        <label className="block text-xl font-medium mb-2">
-                            Hackathon Themes:
-                        </label>
-                        {formData.themes.map((theme, index) => (
-                            <div key={index} className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium mb-2">
-                                        Theme Title:
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={theme.title}
-                                        onChange={(e) =>
-                                            handleInputChange(`themes.${index}.title`, e.target.value)
-                                        }
-                                        required
-                                        className="w-full p-3 rounded bg-[#212830] border border-transparent placeholder-slate-500 focus:border-[#0DB276] focus:outline-none"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium mb-2">
-                                        Theme Description:
-                                    </label>
-                                    <textarea
-                                        value={theme.desc}
-                                        onChange={(e) =>
-                                            handleInputChange(`themes.${index}.desc`, e.target.value)
-                                        }
-                                        required
-                                        className="w-full p-3 rounded bg-[#212830] border border-transparent placeholder-slate-500 focus:border-[#0DB276] focus:outline-none"
-                                        rows="4"
-                                    />
-                                </div>
-                                <button
-                                    type="button"
-                                    onClick={() => handleRemoveTheme(index)}
-                                    className="text-red-500 hover:text-red-700"
-                                >
-                                    Remove Theme
-                                </button>
+                        <div>
+                            <label className="block text-xl font-medium mb-2">
+                                Registration Timeline:
+                            </label>
+                            <div className="flex space-x-4">
+                                <input
+                                    type="datetime-local"
+                                    value={formData.registrationTimeline.start}
+                                    onChange={(e) =>
+                                        handleInputChange(
+                                            "registrationTimeline.start",
+                                            e.target.value
+                                        )
+                                    }
+                                    required
+                                    className="w-1/2 p-3 rounded bg-[#171717] border
+                                border-transparent focus:border-[#0DB276]  focus:outline-none placeholder-[#393530]"
+                                />
+                                <input
+                                    type="datetime-local"
+                                    value={formData.registrationTimeline.end}
+                                    onChange={(e) =>
+                                        handleInputChange(
+                                            "registrationTimeline.end",
+                                            e.target.value
+                                        )
+                                    }
+                                    required
+                                    className="w-1/2 p-3 rounded bg-[#171717] border
+                                border-transparent focus:border-[#0DB276]  focus:outline-none placeholder-[#393530]"
+                                />
                             </div>
-                        ))}
-                        <button
-                            type="button"
-                            onClick={handleAddTheme}
-                            className="text-[#0DB276] hover:text-green-600"
-                        >
-                            Add Another Theme
-                        </button>
-                    </div>
-                    <div>
-    <button
-        type="button"
-        onClick={handleEditHackathon}
-        className="w-full mt-6 p-3 bg-[#0DB276] text-white rounded hover:bg-green-600 focus:outline-none"
-    >
-        Edit Hackathon
-    </button>
-</div>
-                </form>
+                        </div>
+                        {/* Registration Timeline */}
+                        <div>
+                            <label className="block text-xl font-medium mb-2">
+                                Hackathon Timeline:
+                            </label>
+                            <div className="flex space-x-4">
+                                <input
+                                    type="datetime-local"
+                                    value={formData.hackathonTimeline.start}
+                                    onChange={(e) =>
+                                        handleInputChange(
+                                            "hackathonTimeline.start",
+                                            e.target.value
+                                        )
+                                    }
+                                    required
+                                    className="w-1/2 p-3 rounded bg-[#171717] border
+                                border-transparent focus:border-[#0DB276]  focus:outline-none placeholder-[#393530]"
+                                />
+                                <input
+                                    type="datetime-local"
+                                    value={formData.hackathonTimeline.end}
+                                    onChange={(e) =>
+                                        handleInputChange(
+                                            "hackathonTimeline.end",
+                                            e.target.value
+                                        )
+                                    }
+                                    required
+                                    className="w-1/2 p-3 rounded bg-[#171717] border
+                                border-transparent focus:border-[#0DB276]  focus:outline-none placeholder-[#393530]"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Themes Section */}
+                        <div>
+                            <label className="block text-xl font-medium mb-2">
+                                Hackathon Themes:
+                            </label>
+                            {formData.themes.map((theme, index) => (
+                                <div key={index} className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-medium mb-2">
+                                            Theme Title:
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={theme.title}
+                                            onChange={(e) =>
+                                                handleInputChange(`themes.${index}.title`, e.target.value)
+                                            }
+                                            required
+                                            className="w-full p-3 rounded bg-[#171717] border
+                                border-transparent focus:border-[#0DB276]  focus:outline-none placeholder-[#393530]"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium mb-2">
+                                            Theme Description:
+                                        </label>
+                                        <textarea
+                                            value={theme.desc}
+                                            onChange={(e) =>
+                                                handleInputChange(`themes.${index}.desc`, e.target.value)
+                                            }
+                                            required
+                                            className="w-full p-3 rounded bg-[#171717] border
+                                border-transparent focus:border-[#0DB276]  focus:outline-none placeholder-[#393530]"
+                                            rows="4"
+                                        />
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleRemoveTheme(index)}
+                                        className="text-red-500 hover:text-red-700 pb-3"
+                                    >
+                                        Remove Theme
+                                    </button>
+                                </div>
+                            ))}
+                            <button
+                                type="button"
+                                onClick={handleAddTheme}
+                                className="text-[#0DB276] hover:text-green-600"
+                            >
+                                Add Another Theme
+                            </button>
+                        </div>
+                        <div>
+                            <button
+                                type="button"
+                                onClick={handleEditHackathon}
+                                className="mt-6 p-3 w-[20vw] text-[#34D399] bg-[#1D332D]  border-2 border-[#174337] rounded hover:bg-[#1b2f29] focus:outline-none"
+                            >
+                                Edit Hackathon
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     );

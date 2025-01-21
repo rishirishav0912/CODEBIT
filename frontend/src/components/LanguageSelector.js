@@ -19,7 +19,7 @@ const LanguageSelector = ({language,setLanguage}) => {
     <div className="relative w-16 text-[12px] h-[85%]">
       {/* Button to toggle dropdown */}
       <button
-        className="bg-[#181C21] text-slate-300 py-1 px-1 rounded-md border border-slate-600 shadow-md hover:border-[#23d18b] flex justify-between items-center"
+        className="bg-[#181C21]d bg-[#171717] text-slate-300 py-1 px-1 rounded-md border border-slate-600d border-[#333333] shadow-md hover:border-[#23d18b] flex justify-between items-center"
         onClick={() => setIsOpen((prev) => !prev)} // Toggle dropdown visibility
       >
         {languages.find((lang) => lang.value === language)?.label}
@@ -28,7 +28,7 @@ const LanguageSelector = ({language,setLanguage}) => {
 
       {/* Dropdown menu */}
       {isOpen && (
-        <ul className="absolute w-18 mt-2 bg-[#181C21] border border-slate-600 rounded-md shadow-md max-h-48 overflow-y-auto z-10">
+        <ul className="absolute w-18 mt-2 bg-[#181C21]d bg-[#171717] border border-slate-600d border-[#333333] rounded-md shadow-md max-h-48 overflow-y-auto z-10">
           {languages.map((lang) => (
             <li
               key={lang.value}

@@ -1,4 +1,4 @@
-import {useAuthContext} from "./useAuthContext"
+import { useAuthContext } from "./useAuthContext"
 
 const useContest = () => {
     const { user } = useAuthContext();
@@ -6,11 +6,10 @@ const useContest = () => {
     // fetching contest data for specific contest Id
     const fetchContestData = async (contestId) => {
         try {
-            const response = await fetch(`http://localhost:4000/auth/contestproblems/${contestId}`, {
+            const response = await fetch(`http://localhost:4000/contestproblems/${contestId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': user.tokene,  // Add the Authorization header
                 }
             });
             if (!response.ok) {
@@ -28,23 +27,24 @@ const useContest = () => {
     }
 
     // compute finish time for a user
-    const computeFinishTime = async (submissions) => {
+    const computeFinishTime = (submissions) => {
         const lastAcceptedSubmission = submissions.find((submission) => {
             return submission.state === "A"
         });
 
-        return lastAcceptedSubmission.subtm;
+        return lastAcceptedSubmission? lastAcceptedSubmission.subtm : null;
     }
 
     //fetching users data for leadreboard
+    
     const leaderboardData = async (contestId) => {
+    
         try {
             // fetching users data
             const response = await fetch(`http://localhost:4000/leaderboard-data/${contestId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': user.tokene,  // Add the Authorization header
                 }
             })
 
@@ -53,16 +53,20 @@ const useContest = () => {
             console.log("leaderboard data fetched\n", json);
 
             // fetching problem ids for the specific contestId
-            const problems = await fetchContestData(contestId).problems.map((problem) => {
+            const contestData = await fetchContestData(contestId);
+
+            const problems = contestData.problems.map((problem) => {
                 return problem._id;
             });
 
-            const users = json.map((user) => {
+            console.log("prob", problems, "userData", json.usersData);
+
+            const users = json.usersData.map((user) => {
                 const finishTime = computeFinishTime(user.cnthis[0].submiss);
                 const questions = problems.map((problemId) => {
                     // used a helper function fetchStatus , its definition is given below the leaderboardData function
-                    const status = fetchStatus(problemId,user);
-                    return {status: status}
+                    const status = fetchStatus(problemId, user);
+                    return { status: status }
                 })
                 return {
                     email: user.email,
@@ -72,11 +76,12 @@ const useContest = () => {
                 }
             })
 
+
             console.log("updated user data for leaderboard\n", users);
 
             const rankedUsers = rankingUsers(users);
 
-            return rankedUsers;
+            return {rankedUsers, problems};
         }
         catch (error) {
             console.log(error);
@@ -90,19 +95,22 @@ const useContest = () => {
             return submission.pid === problemId
         });
 
-        const status = lastProblemSubmission.state === "A" ?
-            "pass"
+        const status = lastProblemSubmission ?
+            lastProblemSubmission.state === "A" ?
+                "pass"
+                :
+                lastProblemSubmission.state === "W" ?
+                    "fail" :
+                    "notAttempted"
             :
-            lastProblemSubmission.state === "W" ?
-                "fail" :
-                "notAttempted";
+            "notAttempted";
 
         return status;
     }
 
 
     // ranking users on basis of finish time and points 
-    const rankingUsers = async (users) => {
+    const rankingUsers = (users) => {
         users.sort((a, b) => {
             if (b.points === a.points) {
                 return a.finishTime - b.finishTime; // Ascending by finishTime

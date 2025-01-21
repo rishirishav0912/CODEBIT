@@ -6,6 +6,7 @@ const {registerStudent,loginUser,showHackathons,showContest,getUserRegisteredHac
     getUserRegisteredContests,getEvents,getAnnouncement,getTeamDetails,checkRegistration,
     fetchLeaderboardData
 }=require("../controllers/publiccontroller");
+const { getContestProblems } = require("../controllers/admincontroller");
 router.post("/registerstudent",registerStudent);
 router.post("/login/:userType",loginUser);
 router.get("/hackathons",showHackathons);
@@ -17,6 +18,7 @@ router.get("/announcements/:announcementType/:eventId",getAnnouncement);
 router.get("/teams",getTeamDetails);
 router.get("/teams/check-registration",checkRegistration);
 router.get("/leaderboard-data/:contestId", fetchLeaderboardData);
+router.get("/contestproblems/:id",getContestProblems);
 router.get("/users/:id/verify/:token",async(req,res)=>{
 try{
     console.log("me yaha hu");

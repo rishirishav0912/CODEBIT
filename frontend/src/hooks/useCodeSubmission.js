@@ -14,7 +14,7 @@ const useCodeSubmission = ()=> {
 
     const handleCodeSubmission = async (code, language, contestId, problemId) => {
         try {
-            const response = await fetch(`/auth/${user.userid}/${contestId}/${problemId}`, {
+            const response = await fetch(`http://localhost:4000/auth/${user.userid}/${contestId}/${problemId}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -29,6 +29,7 @@ const useCodeSubmission = ()=> {
             if(response.ok){
                 const json = await response.json();
                 console.log(json);
+                console.log("results is",json.results);
                 updateTestcasesResult(json.results);
 
             }

@@ -22,12 +22,12 @@ const createInstance = async () => {
 
   const params = {
     ImageId: 'ami-09b0a86a2c84101e1', // Replace with your AMI ID ( here ubuntu is used )
-    InstanceType: 't2.micro', // Change instance type as needed
+    InstanceType: 't3.small', // Change instance type as needed
     MinCount: 1,
     MaxCount: 1,
-    KeyName: 'judge0ServerKey2', // Replace with your key pair name
+    KeyName: 'judge0key', // Replace with your key pair name
     UserData: userDataBase64,
-    SecurityGroupIds: ['sg-0dec46615f73eade6'], // Replace with your security group ID
+    SecurityGroupIds: ['sg-02c3b617e0133dba4'], // Replace with your security group ID
     // SubnetId: 'subnet-xxxxxxxx', // Replace with your subnet ID
     BlockDeviceMappings: [
       {

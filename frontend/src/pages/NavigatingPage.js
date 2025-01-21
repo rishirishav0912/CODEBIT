@@ -36,7 +36,7 @@ function NavigatingPage() {
                 <Route path="/users/:id/verify/:token" element={<Emailverify />} />
                 <Route path="/teamregister/:hackathonId" element={<FormHackathon />} />
                 <Route path="/projectsubmit/:hackathonId" element={<ProjectSubmission />} />  
-                <Route path="/contestleaderboard/:hackathonId" element={<LeaderBoard/>}/>    
+                <Route path="/contestleaderboard/:contestId" element={<LeaderBoard/>}/>    
                 <Route path="/managehackathon/:hackathonId" element={<HackathonmanagePage />} /> 
                 <Route path="/managecontest/:contestId" element={<ContestmanagePage/>}/>
                 <Route path="/contestproblempage" element={<ContestProblemPage />} />  

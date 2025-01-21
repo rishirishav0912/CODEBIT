@@ -3,30 +3,57 @@
 @tailwind utilities;
 
 @property --border-angle {
-    inherits: false;
-    initial-value: 0deg;
-    syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+  syntax: '<angle>';
 }
 
-.scroll-color{
-    scrollbar-color: #7B7B7B transparent;
-  }
-  
-  .react-resizable-handle{
-    height: 30px !important;
-    width: 30px !important;
-    background-image: url("C:\Users\hp\Desktop\project7thsem\CodeBIT\frontend\public\images\fit_page_height_24dp_0DB276_FILL0_wght400_GRAD0_opsz24.png") !important;
-    background-size: contain !important;
-    transform: none !important;
-  }
-  
-  .react-resizable-handle-w{
-    transform: rotate(90deg) !important;
-  }
-  
-  .react-resizable-handle-s,.react-resizable-handle-e{
-    background-image: none !important;
-  }
+.slick-center {
+  transform: scale(1.1) !important; 
+  opacity: 1 !important;            
+  z-index: 10;                      
+}
+
+.slick-slide {
+  transform: scale(0.95);           /* Shrink non-centered slides */
+  opacity: 0.6;                    /* Make non-centered slides semi-transparent */
+  transition: transform 0.3s, opacity 0.3s; /* Smooth transition */
+}
+
+.font-fira-code {
+  font-family: "Fira Code", serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+}
+
+.font-source-code-pro {
+  font-family: "Source Code Pro", serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+}
+
+.scroll-color {
+  scrollbar-color: #7B7B7B transparent;
+}
+
+.react-resizable-handle {
+  height: 30px !important;
+  width: 30px !important;
+  /* background-image: url("C:\Users\hp\Desktop\project7thsem\CodeBIT\frontend\public\images\fit_page_height_24dp_0DB276_FILL0_wght400_GRAD0_opsz24.png") !important; */
+  background-image: url("../public/images/fit_page_height_24dp_0DB276_FILL0_wght400_GRAD0_opsz24.png") !important;
+  background-size: contain !important;
+  transform: none !important;
+}
+
+.react-resizable-handle-w {
+  transform: rotate(90deg) !important;
+}
+
+.react-resizable-handle-s,
+.react-resizable-handle-e {
+  background-image: none !important;
+}
+
 /* 
 @layer base {
     body {

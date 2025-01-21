@@ -37,7 +37,7 @@ const userSchema = new mongoose.Schema({
   hackhist: [
     {
       hackid: { type: String, required: true },
-      tName:{type:String,required:true,unique:true},
+      tName:{type:String,required:true},
       teamLeader: {
         email: {
           type: String,

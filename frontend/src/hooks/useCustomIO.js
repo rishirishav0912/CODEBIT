@@ -14,6 +14,7 @@ const useCustomIO = () => {
 
     const submitCustomInput = async (code, language, customInput) => {
         try {
+            updateOutput(``);
             const response = await fetch('http://localhost:4000/auth/customIO', {
                 method: 'POST',
                 headers: {
@@ -38,7 +39,7 @@ const useCustomIO = () => {
         }
         finally{
             resetCustomIO();
-            setCustomInput()
+            setCustomInput(``)
         }
     }
 

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate, Navigate } from "react-router-dom";
 import useContest from "../hooks/useContest";
-
 const ContestProblemPage = () => {
     const location = useLocation();
     const { id, name } = location.state || {}; // Assuming id is passed in the state
@@ -17,7 +16,7 @@ const ContestProblemPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const {leaderboardData} = useContest();
+    const { leaderboardData } = useContest();
 
     // Leaderboard data (this would normally be fetched as well)
     // const rankingsData = [
@@ -33,11 +32,11 @@ const ContestProblemPage = () => {
         const fetchContestData = async () => {
             try {
                 setLoading(true);
-                const response = await fetch(`http://localhost:4000/auth/contestproblems/${id}`, {
+                const response = await fetch(`http://localhost:4000/contestproblems/${id}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': token,  // Add the Authorization header
+                        // 'Authorization': token,  // Add the Authorization header
                     }
                 });
                 if (!response.ok) {
@@ -55,16 +54,24 @@ const ContestProblemPage = () => {
         if (id) {
             fetchContestData();
             // updating leaderboard data
-            const updateLeaderboardData = () => {
-                const newData = leaderboardData(id);
-                setRankingsData(newData);
+            const updateLeaderboardData = async () => {
+                try {
+                    const newData = await leaderboardData(id);
+                    setRankingsData(newData.rankedUsers);
+                }
+                catch (error) {
+                    console.log(error);
+                }
+
             };
+
+
 
             // Initial call
             updateLeaderboardData();
 
             // Set up the interval
-            const intervalId = setInterval(updateLeaderboardData, 10 * 60 * 1000);
+            const intervalId = setInterval(updateLeaderboardData, 600000);
 
             // Cleanup function
             return () => clearInterval(intervalId);
@@ -72,84 +79,102 @@ const ContestProblemPage = () => {
 
     }, [id]);
 
-    if (loading) return <div>Loading...</div>;
-    if (error) return <div>{error}</div>;
+    if (loading) return <div className="bg-[#12181F] h-[100vh] w-full] text-[#0DB276] flex justify-center items-center">Loading...</div>;
+    if (error) return <div className="bg-[#12181F] h-[100vh] w-full] text-[#0DB276] flex justify-center items-center">{error}</div>;
 
     return (
-        <div className="flex min-h-screen bg-[#12181f] text-white">
-            {/* Left Side: Problems Section */}
-            <div className="flex-1 py-8 px-4 space-y-4">
-                <div className="text-[28px] text-green-500 font-bold mb-6 text-center">
-                    {name}
-                </div>
+        <div className="flex min-h-screen bg-[#171717] text-white">
+            {
+                contest ?
+                    (new Date(contest.endTime) === new Date()) ?
+                        <Navigate to={"/contest"} />
+                        :
 
-                {/* Loop through problems and display them */}
-                <div className="w-full max-w-[700px] space-y-4">
-                    {contest?.problems?.map((problem, index) => (
-                        <div
-                            key={index}
-                            className="bg-[#21272e] rounded-lg border border-[#293139] shadow-lg p-6 relative self-start ml-20"
-                        >
-                            <div className="text-[24px] font-semibold text-green-300 mb-4">
-                                {problem.desc.probName}
-                            </div>
-                            <div className="text-[18px] text-gray-300 mb-4">
-                                <strong>Points:</strong> {problem.pnt}
-                            </div>
-
-                            <button
-                                onClick={() => <Navigate to={`/${id}/${problem._id}/codeEditor}`} state={{problem: problem, name:name}}/>}
-                                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-[#0DB276] hover:bg-[#0a9160] text-white py-2 px-6 rounded-lg"
-                            >
-                                Solve →
-                            </button>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* Right Side: Leaderboard Section */}
-            <div className="flex flex-col items-end p-4 w-[300px] space-y-4 mr-8">
-
-                <button
-                    onClick={() => navigate(`/contestleaderboard/${id}`)}
-                    className="bg-[#0DB276] hover:bg-[#0a9160] text-white py-2 px-6 rounded-lg"
-                >
-                    Leaderboard →
-                </button>
-
-                {/* Leaderboard Table */}
-                {
-                    rankingsData?.length === 0 ?
                         (
-                            <div className="flex justify-center items-center min-h-[200px]">
-                                <p className="text-xl text-gray-400">No data available.</p>
-                            </div>
-                        ) :
-                        (
-                            <div className="bg-[#21272e] rounded-lg border border-[#293139] shadow-lg p-12 w-[600px]">
-                                <div className="text-[28px] font-semibold text-green-300 mb-4">Rankings</div>
-                                <table className="w-full text-base text-gray-300 text-[24px] ">
-                                    <thead>
-                                        <tr>
-                                            <th className="px-4 py-2 text-left">Rank</th>
-                                            <th className="px-4 py-2 text-left">Name</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {rankingsData.map((student, index) => (
-                                            <tr key={index} className="border-b border-[#293139]">
-                                                <td className="px-4 py-2">{index}</td>
-                                                <td className="px-4 py-2">{student.email}</td>
-                                            </tr>
+                            <>
+                                <div className="flex-1 py-8 px-4 space-y-4 w-full h-full">
+                                    <div className="text-[40px] text-[#0EA96E] tracking-wider font-extrabold mb-6 rounded-lg w-fit flex justify-center py-2 px-4">
+                                        {name}
+                                    </div>
+
+                                    {/* Loop through problems and display them */}
+                                    <div className="w-fulls max-w-[700px]s w-[80%] space-y-4 p-8">
+                                        {contest?.problems?.map((problem, index) => (
+                                            <div
+                                                key={index}
+                                                className="bg-[#21272E]s rounded-lg border-2 border-[#333333] bg-[#262626] shadow-lg p-8 relative self-start hover:border-[#174337] flex-wrap"
+                                            >
+                                                <div className="text-[30px] w-[80%] font-bold text-[#0EA96E]c text-[#34D399] mb-4">
+                                                    {problem.desc.probName}
+                                                </div>
+                                                <div className="text-[18px] mb-4 flex items-center text-[#2f3741]d text-[#737373] font-normal">
+                                                    <span>Max Score : </span>
+                                                    <span className="material-icons">currency_bitcoin</span>
+                                                    {problem.pnt}
+                                                </div>
+
+                                                <button
+                                                    onClick={() => navigate(`/${id}/${problem._id}/codeEditor`, {
+                                                        state: {
+                                                            problem: problem,
+                                                            name: name
+                                                        }
+                                                    })}
+                                                    className="absolute right-4 top-1/2 transform -translate-y-1/2 border border-[#21272E]d border-[#174337] hover:bg-[#21272E]d hover:bg-[#1D332D] text-[#0EA96E]s text-[#34D399] py-3 px-6 rounded-lg tracking-wider font-medium"
+                                                >
+                                                    Solve →
+                                                </button>
+                                            </div>
                                         ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        )
-                }
+                                    </div>
+                                </div>
 
-            </div>
+                                {/* Right Side: Leaderboard Section */}
+                                <div className="flex flex-col items-end p-4 w-[300px]s w-[35%] space-y-4 mr-8 mt-40 ">
+
+                                    {/* Leaderboard Table */}
+                                    {
+                                        rankingsData?.length === 0 ?
+                                            (
+                                                <div className="flex justify-center items-center min-h-[200px]">
+                                                    <p className="text-xl text-gray-400">No data available.</p>
+                                                </div>
+                                            ) :
+                                            (
+                                                <div className="border-2 border-[#21272E]s border-[#333333] bg-[#262626] rounded-lg shadow-lg p-8 w-[600px]s w-full hover:border-[#174337] overflow-auto">
+                                                    <div className="text-[28px] font-bold text-[#0EA96E]s text-[#34D399] mb-4 tracking-wider">Rankings</div>
+                                                    <table className="w-full text-base text-[24px] ">
+                                                        <thead className="text-[#0EA96E]s text-[#A3A3A3]">
+                                                            <tr className="border-b border-[#333333]">
+                                                                <th className="px-4 py-2 text-left">Rank</th>
+                                                                <th className="px-4 py-2 text-left">Name</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody className="text-slate-300s text-[#E5E5E5] font-medium">
+                                                            {rankingsData.map((student, index) => (
+                                                                <tr key={index} className="border-b border-[#2f3741]s border-[#333333] hover:bg-[#232A28] font-light hover:text-[#34D399]">
+                                                                    <td className="px-4 py-2">#{index + 1}</td>
+                                                                    <td className="px-4 py-2">{student.email}</td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            )
+                                    }
+                                    <button
+                                        onClick={() => navigate(`/contestleaderboard/${id}`)}
+                                        className="text-[#0EA96E] border border-[#2f3741]s hover:bg-[#2f3741]s border-[#174337] bg-[#1D332D] hover:bg-[#064e3b]  py-2 px-6 rounded-lg font-medium"
+                                    >
+                                        Leaderboard →
+                                    </button>
+                                </div>
+                            </>
+                        )
+
+                    :
+                    (<Navigate to={"/contest"} />)
+            }
         </div>
 
     );

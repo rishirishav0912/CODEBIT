@@ -1,16 +1,14 @@
 import './App.css';
 import Navbar from './components/Navbar';
 import NavigatingPage from './pages/NavigatingPage';
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import {ToastContainer} from "react-toastify";
+import { BrowserRouter } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
 function App() {
   return (
-    <div className="App">
-       <BrowserRouter>
-      <Navbar />
-      
-      <NavigatingPage />
-      <ToastContainer />
+    <div className="App font-fira-codes font-source-code-pro">
+      <BrowserRouter>
+        <NavigatingPage />
+        <ToastContainer />
       </BrowserRouter>
     </div>
   );

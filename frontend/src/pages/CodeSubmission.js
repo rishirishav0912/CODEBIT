@@ -21,14 +21,15 @@ const CodeSubmission = () => {
     const pref2 = useRef(null);
     const [w2, h2] = useSize(pref2);
 
+
     return (
-        <div className="h-[100vh] w-full flex bg-[#181C21]" ref={pref1}>
+        <div className="h-[100vh] w-full flex bg-[#181C21]d bg-[#171717] overflow-hidden" ref={pref1}>
             <ContestProblemDesc w={w1} h={h1} problem={problem} name={name} id={contestId}/>
             <ResizableBox height={h1} width={.55 * w1}
                 minConstraints={[.55 * w1, h1]}
                 maxConstraints={[3 * w1, h1]}
                 resizeHandles={['w']}
-                className="overflow-hidden"
+                className="overflow-hidden mt-7"
             >
                 <div className="flex flex-col h-full w-full" ref={pref2}>
                     <CodeEditor w={w2} h={h2} contestId={contestId} problemId={problemId}/>

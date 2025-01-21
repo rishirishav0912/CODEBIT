@@ -17,10 +17,10 @@ const OutputSection = ({ w, h }) => {
                 <div className="flex space-x-6 p-4 font-semibold text-[17px]">
                     <button
                         onClick={() => setSelectedButton("btn-1")}
-                        className={`pb-1 ${selectedButton === "btn-1" ? "border-b-[4px] border-[#23d18b] text-[#23d18b]" : "text-gray-400"}`}>Custom Testcases</button>
+                        className={`pb-1 ${selectedButton === "btn-1" ? "border-b-[4px] border-[#23d18b]s border-[#34D399] text-[#23d18b]s text-[#34D399]" : "text-gray-400d text-[#D4D4D4]"}`}>Custom Testcases</button>
                     <button
                         onClick={() => setSelectedButton("btn-2")}
-                        className={`pb-1 ${selectedButton === "btn-2" ? "border-b-[4px] border-[#23d18b] text-[#23d18b]" : "text-gray-400"}`}>Submit Code</button>
+                        className={`pb-1 ${selectedButton === "btn-2" ? "border-b-[4px] border-[#23d18b]s border-[#34D399] text-[#23d18b]s text-[#34D399]" : "text-gray-400d text-[#D4D4D4]"}`}>Submit Code</button>
                 </div>
                 {selectedButton === "btn-1" ?
                     <CustomIO />

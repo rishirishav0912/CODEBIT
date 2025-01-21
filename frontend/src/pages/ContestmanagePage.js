@@ -43,13 +43,13 @@ const ContestmanagePage = () => {
   }
 
   return (
-    <div className="min-h-screen text-slate-300 p-4 sm:p-8 bg-[#181C21]">
+    <div className="min-h-screen text-[#E5E5E5] p-4 sm:p-8 bg-[#171717]">
       {/* Header with Toggle Buttons */}
       <div className="flex justify-start space-x-6 mb-8 pl-20 pt-8">
         <button
           className={`pb-1 text-lg font-semibold ${viewType === "Participants"
-            ? "border-b-[4px] border-[#0DB276] text-[#0DB276]"
-            : "text-gray-400 hover:text-[#0DB276]"}`
+            ? "border-b-[4px] border-[#34D399] text-[#34D399]"
+            : "hover:text-[#34D399] transition duration-200"}`
           }
           onClick={() => setViewType("Participants")}
         >
@@ -57,8 +57,8 @@ const ContestmanagePage = () => {
         </button>
         <button
           className={`pb-1 text-lg font-semibold ${viewType === "Leaderboard"
-            ? "border-b-[4px] border-[#0DB276] text-[#0DB276]"
-            : "text-gray-400 hover:text-[#0DB276]"}`
+            ? "border-b-[4px] border-[#34D399] text-[#34D399]"
+            : "hover:text-[#34D399] transition duration-200"}`
           }
           onClick={() => setViewType("Leaderboard")}
         >
@@ -72,22 +72,22 @@ const ContestmanagePage = () => {
           <h1 className="text-2xl font-bold text-green-400 text-center mb-6">Registered Participants</h1>
 
           {/* Table */}
-          <div className="overflow-x-auto">
-            <table className="table-auto w-full max-w-7xl mx-auto bg-gray-800 rounded-lg">
+          <div className="overflow-x-auto w-[60vw] h-full rounded-lg mx-auto">
+            <table className="table-auto w-full max-w-7xl mx-auto border-2 border-[#333333] bg-[#262626] text-[#E5E5E5E5] rounded-lg">
               <thead>
-                <tr className="bg-gray-700 text-xl">
-                  <th className="px-4 py-3 text-left text-green-400">Roll Number</th>
-                  <th className="px-4 py-3 text-left text-green-400">Email</th>
+                <tr className="border-b-2 border-b-[#333333] text-xl">
+                  <th className="px-4 py-3 text-left">Roll Number</th>
+                  <th className="px-4 py-3 text-left">Email</th>
                 </tr>
               </thead>
               <tbody>
-              {contestData?.map((participant, index) => (
-                
-            <tr key={index} className="border-b border-gray-700">
-              <td className="px-4 py-3 text-sm">{participant.roll}</td>
-              <td className="px-4 py-3 text-sm">{participant.email}</td>
-            </tr>
-          ))}
+                {contestData?.map((participant, index) => (
+
+                  <tr key={index} className="border-b-2 border-b-[#333333] hover:bg-[#232A28] hover:text-[#34D399]">
+                    <td className="px-4 py-3 text-sm">{participant.roll}</td>
+                    <td className="px-4 py-3 text-sm">{participant.email}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
