@@ -158,7 +158,7 @@ const ContestHackathonElement = ({
         if (compName === "contest") setDeleteContestModal(false);
     };
     return (
-        <div className={`relative flex items-center justify-between text-sm lg:text-base pt-6 px-4 pb-8 border-2 border-[#293139]s bg-[#21272e]s border-[#333333] bg-[#262626] hover:border-[#174337] rounded-lg h-full lg:gap-8 ${currentDate > hackathonEnd?"w-[49vw]":""}`}>
+        <div className={`relative flex items-center justify-between text-sm lg:text-base pt-6 px-4 pb-8 border-2 border-[#333333] bg-[#262626] hover:border-[#174337] rounded-lg h-full lg:gap-8 ${currentDate > hackathonEnd?"w-[50vw]":""}`}>
             {userType === "admin" && (
                 (compName === "hackathon" && hackathonNotStarted) ||
                 (compName === "contest" && currentDate < hackathonEnd)

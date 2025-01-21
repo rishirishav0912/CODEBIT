@@ -9,15 +9,15 @@
 }
 
 .slick-center {
-  transform: scale(1.1) !important; 
-  opacity: 1 !important;            
+  transform: scale(1.1); 
+  opacity: 1;            
   z-index: 10;                      
 }
 
 .slick-slide {
-  transform: scale(0.95);           /* Shrink non-centered slides */
-  opacity: 0.6;                    /* Make non-centered slides semi-transparent */
-  transition: transform 0.3s, opacity 0.3s; /* Smooth transition */
+  transform: scale(0.95) ;           
+  opacity: 0.6;                   
+  transition: transform 0.3s, opacity 0.3s;
 }
 
 .font-fira-code {
