@@ -5,7 +5,12 @@ const { makeSubmission, runCustomIO } = require("../controllers/usercontroller")
 const {registerMain,hackathonCreate,createContest,getThemes,teamRegister,projectSubmit,
 checkProjectSubmission,contestRegister,excelUpload,getHackathonHistory,
 getContestHistory,addEvents,getHackathonData,editHackathon,deleteHackathon,getContestData,
-editContest,deleteContest,getEventData,editEvent,deleteEvent,getMails}=require("../controllers/admincontroller");
+editContest,deleteContest,getEventData,editEvent,deleteEvent,getMails,
+getProjectSubmission,
+editSubmission}=require("../controllers/admincontroller");
+
+router.get("/getprojectsubmission/:hackathonId/:userId",getProjectSubmission);
+router.put("/projects/editsubmission/:hackathonId/:userId",editSubmission);
 router.get("/mails",getMails);
 router.post("/registermain",registerMain);
 router.post("/hackathon/create",hackathonCreate);

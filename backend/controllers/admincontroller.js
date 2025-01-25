@@ -84,7 +84,7 @@ const registerMain = async (req, res) => {
 //             const existingStudent = await StudentSchema.findOne({ collegeRollNumber });
 //             if (existingStudent) {
 //                 return res.status(409).json({
-//                     message: College Roll Number ${collegeRollNumber} already exists,
+//                     message: `College Roll Number ${collegeRollNumber} already exists`,
 //                 });
 //             }
 
@@ -136,15 +136,29 @@ const hackathonCreate = async (req, res) => {
         .status(400)
         .json({ error: "Hackathon start date cannot be later than the end date" });
     }
+    const convertToIST = (date) => {
+      const utcDate = new Date(date); // Input date as UTC
+      const offset = 5.5 * 60 * 60 * 1000; // IST offset in milliseconds
+      return new Date(utcDate.getTime() + offset);
+    };
 
+    const registrationTimelineIST = {
+      start: convertToIST(registrationTimeline.start),
+      end: convertToIST(registrationTimeline.end),
+    };
+
+    const hackathonTimelineIST = {
+      start: convertToIST(hackathonTimeline.start),
+      end: convertToIST(hackathonTimeline.end),
+    };
 
 
     // Create a new hackathon instance
     const newHackathon = new HackathonSchema({
       hackName: hackathonName,
       tSize: teamSize,
-      regTime: registrationTimeline,
-      hackTime: hackathonTimeline,
+      regTime: registrationTimelineIST,
+      hackTime: hackathonTimelineIST,
       allVidLink: allowVideoLink,
       allLiveDepLink: allowLiveDeploymentLink,
       themes,
@@ -235,7 +249,7 @@ const teamRegister = async (req, res) => {
   });
   if (teamNameExists) {
     return res.status(400).json({
-        error: `The team name ${teamName} is already registered for this hackathon.`,
+        error: `The team name '${teamName}' is already registered for this hackathon.`,
     });
 }
 
@@ -257,7 +271,7 @@ const teamRegister = async (req, res) => {
 
       if (memberExists) {
         return res.status(400).json({
-          error: `Team member ${member.email} is already registered for this hackathon.`
+          error: `Team member ${member.email} is already registered for this hackathon.`,
         });
       }
     }
@@ -505,6 +519,19 @@ const createContest = async (req, res) => {
     if (!contName || !startTime || !endTime) {
       return res.status(400).json({ message: "Contest name, start time, and end time are required." });
     }
+    const startTimeUTC = new Date(startTime);
+    const endTimeUTC = new Date(endTime);
+    if (isNaN(startTimeUTC) || isNaN(endTimeUTC)) {
+      return res.status(400).json({ message: "Invalid start or end time format." });
+    }
+    const IST_OFFSET = 5 * 60 * 60 * 1000 + 30 * 60 * 1000; // 5 hours 30 minutes in milliseconds
+    const startTimeIST = new Date(startTimeUTC.getTime() + IST_OFFSET);
+    const endTimeIST = new Date(endTimeUTC.getTime() + IST_OFFSET);
+
+    // Validate date ranges
+    if (startTimeIST >= endTimeIST) {
+      return res.status(400).json({ message: "Start time cannot be later than or equal to end time." });
+    }
 
     const challenges = problems.map((challenge) => ({
       pnt: challenge.pnt || 0,
@@ -522,8 +549,8 @@ const createContest = async (req, res) => {
     console.log(challenges);
     const newContest = new ContestSchema({
       contName: contName,
-      startTime: new Date(startTime),
-      endTime: new Date(endTime),
+      startTime:  startTimeIST,
+      endTime: endTimeIST,
       problems,
     });
 
@@ -833,12 +860,25 @@ const editHackathon = async (req, res) => {
     if (!hackathon) {
       return res.status(404).json({ error: "Hackathon not found" });
     }
+const convertToIST = (date) => {
+  const utcDate = new Date(date); // Input date as UTC
+  const offset = 5.5 * 60 * 60 * 1000; // IST offset in milliseconds
+  return new Date(utcDate.getTime() + offset);
+};
+const registrationTimelineIST = {
+  start: convertToIST(updatedData.registrationTimeline.start),
+  end: convertToIST(updatedData.registrationTimeline.end),
+};
 
+const hackathonTimelineIST = {
+  start: convertToIST(updatedData.hackathonTimeline.start),
+  end: convertToIST(updatedData.hackathonTimeline.end),
+};
     // Update hackathon fields
     hackathon.hackName = updatedData.hackathonName;
     hackathon.tSize = updatedData.teamSize;
-    hackathon.regTime = updatedData.registrationTimeline;
-    hackathon.hackTime = updatedData.hackathonTimeline;
+    hackathon.regTime = registrationTimelineIST;
+    hackathon.hackTime =  hackathonTimelineIST;
     hackathon.allVidLink = updatedData.allowVideoLink;
     hackathon.allLiveDepLink = updatedData.allowLiveDeploymentLink;
     hackathon.themes = updatedData.themes;
@@ -905,11 +945,18 @@ const editContest = async (req, res) => {
     if (!contest) {
       return res.status(404).json({ message: "Contest not found." });
     }
+    const convertToIST = (date) => {
+      const utcDate = new Date(date); // Input date as UTC
+      const offset = 5.5 * 60 * 60 * 1000; // IST offset in milliseconds
+      return new Date(utcDate.getTime() + offset);
+    };
+    const startTimeIST = convertToIST(new Date(startTime));
+    const endTimeIST = convertToIST(new Date(endTime));
 
     // Update the contest details
     contest.contName = contestName;
-    contest.startTime = new Date(startTime);
-    contest.endTime = new Date(endTime);
+    contest.startTime = startTimeIST;
+    contest.endTime = endTimeIST;
     contest.problems = challenges.map(challenge => ({
       pnt: Number(challenge.points),
       desc: {
@@ -951,7 +998,7 @@ const deleteContest = async (req, res) => {
     }
     await userSchema.updateMany(
       { "cnthis.cntid": hackathonId }, // Filter for users who have the contest
-      { $pull: { cnthis: { cntid: hackathonId } } } // Remove the contest from the cnthis array
+      { $pull: { cnthis: { cntid: hackathonId } } } // Remove the contest from the `cnthis` array
     );
 
     // Step 3: Send a success response
@@ -1042,6 +1089,151 @@ const deleteEvent = async (req, res) => {
 
 
 }
+const getProjectSubmission=async(req,res)=>{
+  const { hackathonId, userId } = req.params;
+
+try {
+  // Validate required fields
+  if (!hackathonId || !userId) {
+      return res.status(400).json({ message: "Hackathon ID and User ID are required" });
+  }
+
+  // Find the hackathon submission
+  const user = await userSchema.findOne(
+    { email: userId, "hackhist.hackid": hackathonId },
+    { "hackhist.$": 1 } // Use positional projection to retrieve only the relevant hackathon
+);
+
+if (!user || !user.hackhist || user.hackhist.length === 0) {
+    return res.status(404).json({
+        message: "No project submission found for the given Hackathon ID and User ID.",
+    });
+}
+
+const hackathonData = user.hackhist[0]; // Extract the relevant hackathon data
+
+if (!hackathonData.submiss || hackathonData.submiss.length === 0) {
+    return res.status(404).json({
+        message: "No project submission found for the given Hackathon.",
+    });
+}
+
+// Return the submission data
+res.status(200).json({
+    message: "Project submission fetched successfully.",
+    submission: hackathonData.submiss[0], // Assuming one submission per hackathon
+            teamName: hackathonData.tName,
+           
+});
+} catch (error) {
+console.error("Error fetching project submission:", error);
+res.status(500).json({ message: "Failed to fetch project submission.", error: error.message });
+}
+
+
+
+
+
+}
+
+const editSubmission = async (req, res) => {
+  const { hackathonId, userId } = req.params; // userId is the email here
+  const { pname, desc, githubLink, videoLink, liveLink } = req.body;
+
+  try {
+    // Validate required fields
+    if (!pname || !desc || !githubLink) {
+      return res.status(400).json({ message: "Project Name, Description, and GitHub Link are required." });
+    }
+
+    // Fetch the user who is attempting to edit
+    const editingUser = await userSchema.findOne({ email: userId });
+    if (!editingUser) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    // Find the hackathon entry in the editing user's history
+    const userHackathonIndex = editingUser.hackhist.findIndex(
+      (entry) => entry.hackid.toString() === hackathonId
+    );
+    if (userHackathonIndex === -1) {
+      return res.status(404).json({ message: "Hackathon not found in user's history." });
+    }
+
+    // Identify the team leader
+    const teamLeaderEmail = editingUser.hackhist[userHackathonIndex].teamLeader.email;
+    const leader = await userSchema.findOne({ email: teamLeaderEmail });
+
+    if (!leader) {
+      return res.status(404).json({ message: "Team leader not found." });
+    }
+
+    // Find the hackathon entry in the leader's history
+    const leaderHackathonIndex = leader.hackhist.findIndex(
+      (entry) => entry.hackid.toString() === hackathonId
+    );
+    if (leaderHackathonIndex === -1) {
+      return res.status(404).json({ message: "Hackathon not found in leader's history." });
+    }
+
+    // Update the submission data for the leader
+    leader.hackhist[leaderHackathonIndex].submiss[0] = {
+      theme: leader.hackhist[leaderHackathonIndex].submiss[0]?.theme || "N/A", // Retain the existing theme if present
+      pname,
+      desc,
+      githubLink,
+      videoLink: videoLink || null, // Optional field
+      liveLink: liveLink || null,   // Optional field
+    };
+
+    // Save the leader's updated data
+    await leader.save();
+
+    // Get the team members from the leader's hackathon data
+    const { teamMembers } = leader.hackhist[leaderHackathonIndex];
+
+    // Update submissions for all team members
+    const updateTeamSubmissions = teamMembers.map(async (member) => {
+      const teamMember = await userSchema.findOne({ email: member.email });
+      if (teamMember) {
+        const memberHackathonIndex = teamMember.hackhist.findIndex(
+          (entry) => entry.hackid.toString() === hackathonId
+        );
+
+        if (memberHackathonIndex !== -1) {
+          teamMember.hackhist[memberHackathonIndex].submiss[0] = {
+            theme: teamMember.hackhist[memberHackathonIndex].submiss[0]?.theme || "N/A",
+            pname,
+            desc,
+            githubLink,
+            videoLink: videoLink || null,
+            liveLink: liveLink || null,
+          };
+
+          await teamMember.save();
+        }
+      }
+    });
+
+    // Wait for all team members' submissions to be updated
+    await Promise.all(updateTeamSubmissions);
+
+    res.status(200).json({
+      message: "Submission updated successfully for the leader and all team members.",
+      submission: leader.hackhist[leaderHackathonIndex].submiss[0],
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "An error occurred while updating the submission.",
+      error: error.message,
+    });
+  }
+};
+
+  
+
+       
 module.exports = {
   getMails,
   registerMain,
@@ -1066,6 +1258,8 @@ module.exports = {
   deleteContest,
   getEventData,
   editEvent,
-  deleteEvent
+  deleteEvent,
+  getProjectSubmission,
+  editSubmission
 
 };

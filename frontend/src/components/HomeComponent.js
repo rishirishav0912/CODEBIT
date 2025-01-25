@@ -111,16 +111,16 @@ const HomeComponent = () => {
                         {userType === "admin" && (
                             <div className="flex gap-4 px-2 py-1 absolute right-8 top-4 ">
                                 <img
-                                    src="\images\edit.png"
+                                    src="images/edit2.png"
                                     alt="edit"
                                     onClick={() => handleEditClick(event)}
-                                    className="w-[20px] h-[20px] filter invert-[50%] sepia-[80%] saturate-[500%] hue-rotate-[120deg] hover:cursor-pointer hover:scale-110 active:scale-90 transition-transform duration-200 "
+                                    className="w-[20px] h-[20px] hover:cursor-pointer hover:scale-110 active:scale-90 transition-transform duration-200 "
                                 />
                                 <img
-                                    src="\images\delete.png"
+                                    src="images/delete2.png"
                                     alt="delete"
                                     onClick={() => handleDeleteClick(event)}
-                                    className="w-[20px] h-[20px] filter invert-[50%] sepia-[80%] saturate-[500%] hue-rotate-[120deg] hover:cursor-pointer hover:scale-110 active:scale-90 transition-transform duration-200"
+                                    className="w-[20px] h-[20px] hover:cursor-pointer hover:scale-110 active:scale-90 transition-transform duration-200"
 
                                 />
 

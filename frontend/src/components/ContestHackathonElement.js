@@ -48,6 +48,19 @@ const ContestHackathonElement = ({
     } else if (compName === "contest") {
         deadline = hackathonStart; // Contest deadline is always the contest start time
     }
+
+    const convertToIST = (dateString) => {
+        if (!dateString) return "N/A";
+
+        const utcDate = new Date(dateString);
+        // Add IST offset (+5 hours 30 minutes)
+        const istDate = new Date(utcDate.getTime() - (5.5 * 60 * 60 * 1000));
+
+        return istDate.toLocaleString("en-US", {
+            dateStyle: "short",
+            timeStyle: "short",
+        });
+    };
     useEffect(() => {
         const checkProjectSubmission = async () => {
             if (!userEmail || !hackathonId) return;
@@ -158,27 +171,27 @@ const ContestHackathonElement = ({
         if (compName === "contest") setDeleteContestModal(false);
     };
     return (
-        <div className={`relative flex items-center justify-between text-sm lg:text-base pt-6 px-4 pb-8 border-2 border-[#333333] bg-[#262626] hover:border-[#174337] rounded-lg h-full lg:gap-8 ${currentDate > hackathonEnd?"w-[50vw]":""}`}>
+        <div className={`relative flex items-center justify-between text-sm lg:text-base pt-6 px-4 pb-8 border-2 border-[#333333] bg-[#262626] hover:border-[#174337] rounded-lg h-full lg:gap-8 ${currentDate > hackathonEnd ? "w-[50vw]" : ""}`}>
             {userType === "admin" && (
-                (compName === "hackathon" && hackathonNotStarted) ||
+                (compName === "hackathon" && currentDate < hackathonEnd) ||
                 (compName === "contest" && currentDate < hackathonEnd)
             ) && (
                     <div className="flex gap-4 px-2 py-1 absolute right-8 top-4">
                         <img
-                            src="\images\edit.png"
+                            src="images/edit1.png"
                             alt="edit"
                             onClick={() => compName === "hackathon"
                                 ? setEditHackathonModal(true)
                                 : setEditContestModal(true)}
-                            className="w-[20px] h-[20px] filter invert-[50%] sepia-[80%] saturate-[500%] hue-rotate-[120deg] hover:cursor-pointer hover:scale-110 active:scale-90 transition-transform duration-200 "
+                            className="w-[20px] h-[20px] hover:cursor-pointer hover:scale-110 active:scale-90 transition-transform duration-200 "
                         />
                         <img
-                            src="\images\delete.png"
+                            src="images/delete1.png"
                             alt="delete"
                             onClick={() => compName === "hackathon"
                                 ? setDeleteHackathonModal(true)
                                 : setDeleteContestModal(true)}
-                            className="w-[20px] h-[20px] filter invert-[50%] sepia-[80%] saturate-[500%] hue-rotate-[120deg] hover:cursor-pointer hover:scale-110 active:scale-90 transition-transform duration-200"
+                            className="w-[20px] h-[20px] hover:cursor-pointer hover:scale-110 active:scale-90 transition-transform duration-200"
 
                         />
                         {compName === "hackathon" && editHackathonModal && (
@@ -204,26 +217,13 @@ const ContestHackathonElement = ({
                         <div>Team Size: {teamSize}</div>
                         <div>
                             <strong>Registration:</strong>{" "}
-                            {registrationTimeline?.start
-                                ? `${new Date(registrationTimeline.start).toLocaleString([], {
-                                    dateStyle: "short",
-                                    timeStyle: "short",
-                                })}`
-                                : "N/A"}{" "}
-                            to{" "}
-                            {registrationEnd
-                                ? `${registrationEnd.toLocaleString([], { dateStyle: "short", timeStyle: "short" })}`
-                                : "N/A"}
+                            {registrationTimeline?.start ? convertToIST(registrationTimeline.start) : "N/A"} to{" "}
+                            {registrationTimeline?.end ? convertToIST(registrationTimeline.end) : "N/A"}
                         </div>
                         <div>
                             <strong>Hackathon:</strong>{" "}
-                            {hackathonTimeline?.start
-                                ? `${hackathonStart.toLocaleString([], { dateStyle: "short", timeStyle: "short" })}`
-                                : "N/A"}{" "}
-                            to{" "}
-                            {hackathonEnd
-                                ? `${hackathonEnd.toLocaleString([], { dateStyle: "short", timeStyle: "short" })}`
-                                : "N/A"}
+                            {hackathonTimeline?.start ? convertToIST(hackathonTimeline.start) : "N/A"} to{" "}
+                            {hackathonTimeline?.end ? convertToIST(hackathonTimeline.end) : "N/A"}
                         </div>
                     </>
                 )}
@@ -233,15 +233,15 @@ const ContestHackathonElement = ({
                         <div>
                             <strong>Contest Date:</strong>{" "}
                             {hackathonStart
-                                ? `${hackathonStart.toLocaleDateString([], { dateStyle: "medium" })}`
+                                ? `${hackathonStart.toLocaleDateString("en-GB", { timeZone: "UTC", dateStyle: "medium" })}`
                                 : "N/A"}
                         </div>
                         <div>
                             <strong>Contest Time:</strong>{" "}
                             {hackathonStart && hackathonEnd
-                                ? `${hackathonStart.toLocaleTimeString([], { timeStyle: "short" })} - ${hackathonEnd.toLocaleTimeString(
-                                    [],
-                                    { timeStyle: "short" }
+                                ? `${hackathonStart.toLocaleTimeString("en-US", { timeZone: "UTC", timeStyle: "short", hour12: true })} - ${hackathonEnd.toLocaleTimeString(
+                                    "en-US",
+                                    { timeZone: "UTC", timeStyle: "short", hour12: true }
                                 )}`
                                 : "N/A"}
                         </div>
@@ -291,7 +291,13 @@ const ContestHackathonElement = ({
                                         : "hover:bg-[#0a9160]s cursor-pointer bg-[#0DB276]s border-2 border-[#174337] hover:bg-[#1D332D] text-[#34D399]"
                                         } rounded-lg py-2 px-4 text-center`}
                                 >
-                                    {isProjectSubmitted ? "Project Submitted" : "Enter →"}
+                                    {isProjectSubmitted ? (
+                                        <button onClick={() => navigate(`/editsubmission/${hackathonId}`)}
+                                            className="w-fit cursor-pointer  border-2 border-[#174337] hover:bg-[#1D332D] text-[#34D399] rounded-lg py-2 px-4 text-center"
+                                        >
+                                            Edit Submission
+                                        </button>
+                                    ) : "Enter →"}
                                 </div>
                             )}
 

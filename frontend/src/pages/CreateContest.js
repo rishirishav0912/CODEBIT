@@ -116,7 +116,12 @@ const CreateContest = () => {
 
         setIsAddingChallenge(false);
     };
-
+    const handleRemoveChallenge = (indexToRemove) => {
+        setFormData((prev) => ({
+            ...prev,
+            challenges: prev.challenges.filter((_, index) => index !== indexToRemove),
+        }));
+    };
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -176,8 +181,7 @@ const CreateContest = () => {
                         Create Contest with Challenges
                     </h2>
                     <form onSubmit={handleSubmit} className="space-y-8 w-full">
-                        {/* Contest Details */}
-                        {/* ...Existing Inputs for contestName, startTime, and endTime */}
+                        
                         <div>
                             <label className="block text-xl font-medium mb-2">Contest Name:</label>
                             <input
@@ -215,6 +219,13 @@ const CreateContest = () => {
                                 <div key={index} className="p-4 mb-4 rounded bg-[#171717] border border-[#0DB276]">
                                     <h4 className="text-2xl">{challenge.challengeName}</h4>
                                     <p>{challenge.problemStatement}</p>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleRemoveChallenge(index)}
+                                        className="mt-2 py-2 px-4 text-[#F87171] bg-[#3B1717] hover:bg-[#471919] border-2 border-[#8B0000] font-semibold rounded"
+                                    >
+                                        Remove Challenge
+                                    </button>
                                 </div>
                             ))}
 

@@ -7,7 +7,6 @@ import emailjs from '@emailjs/browser';
 // eRzi5FMPxscRPHte2
 
 const useEmailBroadcast = () => {
-    const [emails, setEmails] = useState([]);
     const {user} = useAuthContext();
 
 
@@ -27,7 +26,7 @@ const useEmailBroadcast = () => {
             }
             const data = await response.json();
             console.log("data is", data);
-            setEmails([...data.emails]);
+            return data.emails || [];
         } catch (err) {
             console.log(err);
         }
@@ -36,7 +35,7 @@ const useEmailBroadcast = () => {
     
     const emailBroadcast = async (formdata) => {
         const { tit, desc, deadline, org, anType, selEv, tNames } = formdata;
-        await fetchEmails();
+        const emails = await fetchEmails();
         console.log(emails);
         emailjs.send('service_s3oruwc', 'template_53p2qmo', {
             from_name: "Admin",
