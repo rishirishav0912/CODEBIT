@@ -200,7 +200,7 @@ const PastHackathonManagePage = () => {
                                                             {teams.map((team, idx) => (
                                                                 <div
                                                                     key={idx}
-                                                                    className={`mb-6 border-b-2 border-[#0a9160] pb-6 text-lg text-slate-200 ${idx === 0 ? "border-t-2 border-[#0a9160] pt-6" : ""
+                                                                    className={`mb-6 border-b-2 border-[#333333] pb-6 text-lg text-slate-200 ${idx === 0 ? "border-t-2 border-[#333333] pt-6" : ""
                                                                         }`}
                                                                 >
                                                                     {/* Rank */}
@@ -231,8 +231,7 @@ const PastHackathonManagePage = () => {
                                                                         {team.members.map((member, memberIdx) => (
                                                                             <div
                                                                                 key={memberIdx}
-                                                                                className={`py-1 text-center capitalize rounded ${memberIdx % 2 === 0 ? "bg-gray-500" : "bg-gray-600"
-                                                                                    }`}
+                                                                                className={`py-1 text-center capitalize roundedtext-[#34D399] bg-[#1D332D] hover:bg-[#1b2f29]  border-2 border-[#174337]`}
                                                                             >
                                                                                 <p>{member.name}</p>
 
@@ -299,7 +298,7 @@ const PastHackathonManagePage = () => {
                 <div className="w-full max-w-3xl mx-auto border-2 border-[#333333] bg-[#21272e]s bg-[#262626] rounded-lg shadow-lg p-6 ">
                     <>
                         {isRegistered ? (
-                            <div className="flex flex-col gap-4">
+                            <div className="flex flex-col gap-4 text-[#E5E5E5]">
                                 <h1 className="text-slate-300 font-bold text-xl px-2">
                                     We are thrilled to see your participation in this hackathon {events.tit}
                                 </h1>

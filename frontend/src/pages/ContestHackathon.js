@@ -7,11 +7,11 @@ const ContestHackathon = () => {
     const userType = JSON.parse(localStorage.getItem("user"))?.userType || "null";
     return (
 
-        <div className="flex bg-[#181C21]s bg-[#171717] w-full ">
+        <div className="flex bg-[#171717] w-full ">
             <Navbar />
-            <div className="flex flex-wrap flex-col gap-16 items-start bg-[#181C21]s bg-[#171717] text-slate-300 rounded-2xl box-border w-[65vw] ml-20 ">
-                <div className="flex justify-between w-[100%] ">
-                    <div className="w-[70%]">
+            <div className="flex flex-wrap flex-col gap-16 items-start bg-[#171717] text-slate-300 rounded-2xl box-border w-[65vw] ml-20 ">
+                <div className="flex justify-between w-[100%] h-fit">
+                    <div className="w-[70%] h-fit">
                         <ContestHackathonEvents UP="upcoming" feat={feat} />
                     </div>
                     <div className="w-[28%] ml-40">

@@ -136,15 +136,29 @@ const hackathonCreate = async (req, res) => {
         .status(400)
         .json({ error: "Hackathon start date cannot be later than the end date" });
     }
+    const convertToIST = (date) => {
+      const utcDate = new Date(date); // Input date as UTC
+      const offset = 5.5 * 60 * 60 * 1000; // IST offset in milliseconds
+      return new Date(utcDate.getTime() + offset);
+    };
 
+    const registrationTimelineIST = {
+      start: convertToIST(registrationTimeline.start),
+      end: convertToIST(registrationTimeline.end),
+    };
+
+    const hackathonTimelineIST = {
+      start: convertToIST(hackathonTimeline.start),
+      end: convertToIST(hackathonTimeline.end),
+    };
 
 
     // Create a new hackathon instance
     const newHackathon = new HackathonSchema({
       hackName: hackathonName,
       tSize: teamSize,
-      regTime: registrationTimeline,
-      hackTime: hackathonTimeline,
+      regTime: registrationTimelineIST,
+      hackTime: hackathonTimelineIST,
       allVidLink: allowVideoLink,
       allLiveDepLink: allowLiveDeploymentLink,
       themes,
@@ -194,52 +208,61 @@ const getThemes = async (req, res) => {
 const teamRegister = async (req, res) => {
   try {
     // Extract the hackathon ID from route parameters
-
-    const { id } = req.params;
-
+    
+    const { id} = req.params;
+    
     // Extract the team registration data from the request body
     const {
-      teamName,
-      teamLeader,
-      teamMembers,
-      selectedProblem,
-
+        teamName,
+        teamLeader,
+        teamMembers,
+        selectedProblem,
+      
     } = req.body;
-
-
+ 
+   
     // Validate the required fields
     if (!teamName || !teamLeader || !teamLeader.email || !selectedProblem) {
-      return res.status(400).json({ error: 'Missing required fields.' });
+        return res.status(400).json({ error: 'Missing required fields.' });
     }
 
     // Verify the hackathon exists in the CreateHackathon collection
     const hackathon = await HackathonSchema.findById(id);
-
+    
     if (!hackathon) {
-      return res.status(404).json({ error: 'Hackathon not found.' });
+        return res.status(404).json({ error: 'Hackathon not found.' });
     }
+    const teamLeaderExists = await userSchema.findOne({ email: teamLeader.email });
+    if (!teamLeaderExists) {
+      return res.status(400).json({ error: "Team leader email is not registered." });
+    }
+    for (const member of teamMembers) {
+      const memberExists = await userSchema.findOne({ email: member.email });
+      if (!memberExists) {
+        return res.status(400).json({ error: `Team member email ${member.email} is not registered.` });
+      }
+    }
+
     const teamNameExists = await userSchema.findOne({
       "hackhist.hackid": id,
       "hackhist.tName": teamName,
-    });
-    if (teamNameExists) {
-      return res.status(400).json({
+  });
+  if (teamNameExists) {
+    return res.status(400).json({
         error: `The team name '${teamName}' is already registered for this hackathon.`,
-      });
-    }
+    });
+}
 
     const leaderExists = await userSchema.findOne({
       email: teamLeader.email,
       "hackhist.hackid": id, // Check if this hackathon ID already exists in hackhist
     });
 
-
     if (leaderExists) {
       return res.status(400).json({
         error: "Team leader is already registered for this hackathon.",
       });
     }
-
     for (const member of teamMembers) {
       const memberExists = await userSchema.findOne({
         email: member.email,
@@ -262,20 +285,20 @@ const teamRegister = async (req, res) => {
           submiss: [
             {
               theme: selectedProblem,
-              desc: "",
-              githubLink: "",
+              desc:"NA",
+              githubLink: "NA",
               videoLink: "",
               liveLink: "",
+              pname:"NA"
             },
           ],
         },
       },
     };
     // // Ensure the team leader email is unique
-
-    await userSchema.findOneAndUpdate({ email: teamLeader.email }, teamLeaderUpdate);
-    console.log(teamMembers);
-
+    
+    const z=await userSchema.findOneAndUpdate({ email: teamLeader.email }, teamLeaderUpdate);
+   
     for (const member of teamMembers) {
       const memberUpdate = {
         $push: {
@@ -284,22 +307,34 @@ const teamRegister = async (req, res) => {
             tName: teamName,
             teamLeader,
             teamMembers,
-            submiss: [],
+            submiss: [
+              {
+                theme: selectedProblem,
+                desc:"NA",
+                githubLink: "NA",
+                videoLink: "",
+                liveLink: "",
+                pname:"NA"
+              },
+            ],
           },
         },
       };
       await userSchema.findOneAndUpdate({ email: member.email }, memberUpdate);
     }
-
-
+    console.log('yaha tak');
+    
     return res.status(201).json({
-      message: 'Team registered successfully.',
-
+        message: 'Team registered successfully.',
+        
     });
-  } catch (error) {
+} catch (error) {
     console.error('Error during team registration:', error);
     return res.status(500).json({ error: 'Internal Server Error.' });
-  }
+}
+
+
+
 };
 
 
@@ -325,123 +360,146 @@ const teamRegister = async (req, res) => {
 // }
 const projectSubmit = async (req, res) => {
   console.log("yaha pe");
-
-  const { projectName,
-    description,
-    githubLink,
-    videoLink,
-    liveLink,
-    userId,
-    hackathonId,
-  } = req.body;
-  console.log(userId);
-  try {
-
-    const userRecord = await userSchema.findOne({
-      "hackhist.hackid": hackathonId,
-      "hackhist.teamLeader.email": userId,
+    
+    const {  projectName,
+      description,
+      githubLink,
+      videoLink,
+      liveLink,
+      userId,
+      hackathonId,
+      } = req.body;
+   
+    try {
+      const userRecord = await userSchema.findOne({
+        "hackhist.hackid": hackathonId,
+        "hackhist.teamLeader.email":  userId ,
     });
 
     if (!userRecord) {
-      return res.status(404).json({ message: "Hackathon not found in user history" });
+        return res.status(404).json({ message: "Hackathon not found in user history or You'r not an Team Leader" });
     }
+    
     const hackathon = userRecord.hackhist.find(
       (hack) => hack.hackid === hackathonId
-    );
+  );
 
-    if (!hackathon) {
+  if (!hackathon) {
       return res.status(404).json({ message: "Hackathon details not found" });
-    }
-    if (!hackathon.submiss || hackathon.submiss.length === 0) {
-      return res
+  }
+  
+  if (!hackathon.submiss || hackathon.submiss.length === 0) {
+    return res
         .status(400)
         .json({ message: "No submissions found to update." });
+}
+      const teamMembersEmails = [
+        hackathon.teamLeader.email,
+        ...hackathon.teamMembers.map((member) => member.email),
+      ];
+      
+      const updatePromises = teamMembersEmails.map(async (email) => {
+        const memberRecord = await userSchema.findOne({
+            email,
+            "hackhist.hackid": hackathonId,
+        });
+      
+        if (memberRecord) {
+            const memberHackathon = memberRecord.hackhist.find(
+                (hack) => hack.hackid === hackathonId
+            );
+      
+            if (memberHackathon) {
+                if (!memberHackathon.submiss || memberHackathon.submiss.length === 0) {
+                    memberHackathon.submiss = [{}];
+                }
+      
+                const memberSubmission = memberHackathon.submiss[0];
+                memberSubmission.pname = projectName || memberSubmission.pname ;
+                memberSubmission.desc = description || memberSubmission.desc || "";
+                memberSubmission.githubLink =
+                    githubLink || memberSubmission.githubLink || "";
+                memberSubmission.videoLink =
+                    videoLink || memberSubmission.videoLink || "";
+                memberSubmission.liveLink = liveLink || memberSubmission.liveLink ||"";
+      console.log("sub"+memberSubmission);
+                await memberRecord.save();
+            }
+        }
+      });
+      await Promise.all(updatePromises);
+ 
+
+
+
+
+           
+console.log("ho hi gya");
+res.status(200).json({
+  message: "Project updated successfully!",
+ 
+});
+        
+     
+   
+       
+      
+      
+    } catch (error) {
+        if (error.name === 'ValidationError') {
+            console.error('Validation Error:', error.errors);
+        } else {
+            console.error('Error:', error);
+        }
+        res.status(500).json({ message: 'Error submitting project', error: error.message });
     }
 
-    const submission = hackathon.submiss[0];
-    submission.pname = projectName || submission.pname;
-    submission.desc = description || submission.desc;
-    submission.githubLink = githubLink || submission.githubLink;
-    submission.videoLink = videoLink || submission.videoLink;
-    submission.liveLink = liveLink || submission.liveLink;
-
-    // Save the updated user record
-    await userRecord.save();
-
-
-
-
-    console.log("ho hi gya");
-    res.status(200).json({
-      message: "Project updated successfully!",
-      project: {
-        projectName: submission.pname,
-        description: submission.desc,
-        githubLink: submission.githubLink,
-        videoLink: submission.videoLink,
-        liveLink: submission.liveLink,
-        hackathonId,
-        teamLeader: hackathon.teamLeader,
-        teamMembers: hackathon.teamMembers,
-      },
-    });
-
-
-
-
-
-
-  } catch (error) {
-    if (error.name === 'ValidationError') {
-      console.error('Validation Error:', error.errors);
-    } else {
-      console.error('Error:', error);
-    }
-    res.status(500).json({ message: 'Error submitting project', error: error.message });
-  }
 
 
 
 }
 
 const checkProjectSubmission = async (req, res) => {
+ 
   const { hackathonId, email } = req.query; // Accept hackathon ID and user email in the query params
-
+  
   try {
     // Check if a project exists for the given hackathon and email
     const userRecord = await userSchema.findOne({
       $or: [
-        { email }, // Match user by email
-        { "hackhist.teamLeader.email": email }, // Match as team leader
-        { "hackhist.teamMembers.email": email } // Match as a team member
+          { email }, // Match user by email
+          { "hackhist.teamLeader.email": email }, // Match as team leader
+          { "hackhist.teamMembers.email": email } // Match as a team member
       ],
       "hackhist.hackid": hackathonId // Match the hackathon ID
-    });
-    if (!userRecord) {
-      return res.status(404).json({ message: "User or hackathon not found." });
-    }
+  });
+  if (!userRecord) {
+    return res.status(404).json({ message: "User or hackathon not found." });
+}
 
-    // Find the relevant hackathon entry in the user's history
-    const hackathon = userRecord.hackhist.find(
-      (hack) => hack.hackid === hackathonId
-    );
-    if (!hackathon) {
-      return res.status(404).json({ message: "Hackathon details not found." });
-    }
+// Find the relevant hackathon entry in the user's history
+const hackathon = userRecord.hackhist.find(
+    (hack) => hack.hackid === hackathonId
+);
+if (!hackathon) {
+  return res.status(404).json({ message: "Hackathon details not found." });
+}
 
-    // Check if there's a submission
-    const submission = hackathon.submiss.find(
-      (sub) =>
-        sub.desc && sub.githubLink
-    );
+// Check if there's a submission
+const submission = hackathon.submiss.find(
+(sub) =>
+  sub.desc !== "NA" &&
+sub.pname !== "NA" &&
+sub.githubLink !== "NA"
+);
 
-    if (submission) {
-      return res.status(200).json({ submitted: true, project: submission });
-    } else {
-      return res.status(200).json({ submitted: false });
-    }
+if (submission) {
+  return res.status(200).json({ submitted: true, project: submission });
+} else {
+  return res.status(200).json({ submitted: false });
+}
 
-
+  
   } catch (error) {
     console.error("Error checking project submission:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -461,6 +519,19 @@ const createContest = async (req, res) => {
     if (!contName || !startTime || !endTime) {
       return res.status(400).json({ message: "Contest name, start time, and end time are required." });
     }
+    const startTimeUTC = new Date(startTime);
+    const endTimeUTC = new Date(endTime);
+    if (isNaN(startTimeUTC) || isNaN(endTimeUTC)) {
+      return res.status(400).json({ message: "Invalid start or end time format." });
+    }
+    const IST_OFFSET = 5 * 60 * 60 * 1000 + 30 * 60 * 1000; // 5 hours 30 minutes in milliseconds
+    const startTimeIST = new Date(startTimeUTC.getTime() + IST_OFFSET);
+    const endTimeIST = new Date(endTimeUTC.getTime() + IST_OFFSET);
+
+    // Validate date ranges
+    if (startTimeIST >= endTimeIST) {
+      return res.status(400).json({ message: "Start time cannot be later than or equal to end time." });
+    }
 
     const challenges = problems.map((challenge) => ({
       pnt: challenge.pnt || 0,
@@ -478,8 +549,8 @@ const createContest = async (req, res) => {
     console.log(challenges);
     const newContest = new ContestSchema({
       contName: contName,
-      startTime: new Date(startTime),
-      endTime: new Date(endTime),
+      startTime:  startTimeIST,
+      endTime: endTimeIST,
       problems,
     });
 
@@ -606,7 +677,7 @@ const getContestProblems = async (req, res) => {
 }
 const getHackathonHistory = async (req, res) => {
   const { hackathonId } = req.params;
-  console.log(hackathonId);
+ 
   try {
     const users = await userSchema.find({ "hackhist.hackid": hackathonId });
 
@@ -615,12 +686,29 @@ const getHackathonHistory = async (req, res) => {
     }
 
     // Extract the hackathon details for each user
-    const hackathonDetails = users.map(user =>
-      user.hackhist.find(hack => hack.hackid === hackathonId)
-    );
+    // const hackathonDetails = users.map(user =>
+    //   user.hackhist.find(hack => hack.hackid === hackathonId)
+    // );
 
-    console.log(hackathonDetails);
-    res.status(200).json(hackathonDetails);
+    // console.log(hackathonDetails);
+    // res.status(200).json(hackathonDetails);
+
+    let hackathonDetails = users
+    .flatMap(user => user.hackhist.filter(hack => hack.hackid === hackathonId));
+
+  // Remove duplicates based on teamName
+  const uniqueHackathonDetails = [];
+  const seenTeamNames = new Set();
+
+  hackathonDetails.forEach(detail => {
+    if (!seenTeamNames.has(detail.tName)) {
+      seenTeamNames.add(detail.tName);
+      uniqueHackathonDetails.push(detail);
+    }
+  });
+
+  
+  res.status(200).json(uniqueHackathonDetails);
   }
   catch (error) {
     console.error("Error fetching hackathon history:", error);
@@ -772,12 +860,25 @@ const editHackathon = async (req, res) => {
     if (!hackathon) {
       return res.status(404).json({ error: "Hackathon not found" });
     }
+const convertToIST = (date) => {
+  const utcDate = new Date(date); // Input date as UTC
+  const offset = 5.5 * 60 * 60 * 1000; // IST offset in milliseconds
+  return new Date(utcDate.getTime() + offset);
+};
+const registrationTimelineIST = {
+  start: convertToIST(updatedData.registrationTimeline.start),
+  end: convertToIST(updatedData.registrationTimeline.end),
+};
 
+const hackathonTimelineIST = {
+  start: convertToIST(updatedData.hackathonTimeline.start),
+  end: convertToIST(updatedData.hackathonTimeline.end),
+};
     // Update hackathon fields
     hackathon.hackName = updatedData.hackathonName;
     hackathon.tSize = updatedData.teamSize;
-    hackathon.regTime = updatedData.registrationTimeline;
-    hackathon.hackTime = updatedData.hackathonTimeline;
+    hackathon.regTime = registrationTimelineIST;
+    hackathon.hackTime =  hackathonTimelineIST;
     hackathon.allVidLink = updatedData.allowVideoLink;
     hackathon.allLiveDepLink = updatedData.allowLiveDeploymentLink;
     hackathon.themes = updatedData.themes;
@@ -844,11 +945,18 @@ const editContest = async (req, res) => {
     if (!contest) {
       return res.status(404).json({ message: "Contest not found." });
     }
+    const convertToIST = (date) => {
+      const utcDate = new Date(date); // Input date as UTC
+      const offset = 5.5 * 60 * 60 * 1000; // IST offset in milliseconds
+      return new Date(utcDate.getTime() + offset);
+    };
+    const startTimeIST = convertToIST(new Date(startTime));
+    const endTimeIST = convertToIST(new Date(endTime));
 
     // Update the contest details
     contest.contName = contestName;
-    contest.startTime = new Date(startTime);
-    contest.endTime = new Date(endTime);
+    contest.startTime = startTimeIST;
+    contest.endTime = endTimeIST;
     contest.problems = challenges.map(challenge => ({
       pnt: Number(challenge.points),
       desc: {
@@ -981,6 +1089,151 @@ const deleteEvent = async (req, res) => {
 
 
 }
+const getProjectSubmission=async(req,res)=>{
+  const { hackathonId, userId } = req.params;
+
+try {
+  // Validate required fields
+  if (!hackathonId || !userId) {
+      return res.status(400).json({ message: "Hackathon ID and User ID are required" });
+  }
+
+  // Find the hackathon submission
+  const user = await userSchema.findOne(
+    { email: userId, "hackhist.hackid": hackathonId },
+    { "hackhist.$": 1 } // Use positional projection to retrieve only the relevant hackathon
+);
+
+if (!user || !user.hackhist || user.hackhist.length === 0) {
+    return res.status(404).json({
+        message: "No project submission found for the given Hackathon ID and User ID.",
+    });
+}
+
+const hackathonData = user.hackhist[0]; // Extract the relevant hackathon data
+
+if (!hackathonData.submiss || hackathonData.submiss.length === 0) {
+    return res.status(404).json({
+        message: "No project submission found for the given Hackathon.",
+    });
+}
+
+// Return the submission data
+res.status(200).json({
+    message: "Project submission fetched successfully.",
+    submission: hackathonData.submiss[0], // Assuming one submission per hackathon
+            teamName: hackathonData.tName,
+           
+});
+} catch (error) {
+console.error("Error fetching project submission:", error);
+res.status(500).json({ message: "Failed to fetch project submission.", error: error.message });
+}
+
+
+
+
+
+}
+
+const editSubmission = async (req, res) => {
+  const { hackathonId, userId } = req.params; // userId is the email here
+  const { pname, desc, githubLink, videoLink, liveLink } = req.body;
+
+  try {
+    // Validate required fields
+    if (!pname || !desc || !githubLink) {
+      return res.status(400).json({ message: "Project Name, Description, and GitHub Link are required." });
+    }
+
+    // Fetch the user who is attempting to edit
+    const editingUser = await userSchema.findOne({ email: userId });
+    if (!editingUser) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    // Find the hackathon entry in the editing user's history
+    const userHackathonIndex = editingUser.hackhist.findIndex(
+      (entry) => entry.hackid.toString() === hackathonId
+    );
+    if (userHackathonIndex === -1) {
+      return res.status(404).json({ message: "Hackathon not found in user's history." });
+    }
+
+    // Identify the team leader
+    const teamLeaderEmail = editingUser.hackhist[userHackathonIndex].teamLeader.email;
+    const leader = await userSchema.findOne({ email: teamLeaderEmail });
+
+    if (!leader) {
+      return res.status(404).json({ message: "Team leader not found." });
+    }
+
+    // Find the hackathon entry in the leader's history
+    const leaderHackathonIndex = leader.hackhist.findIndex(
+      (entry) => entry.hackid.toString() === hackathonId
+    );
+    if (leaderHackathonIndex === -1) {
+      return res.status(404).json({ message: "Hackathon not found in leader's history." });
+    }
+
+    // Update the submission data for the leader
+    leader.hackhist[leaderHackathonIndex].submiss[0] = {
+      theme: leader.hackhist[leaderHackathonIndex].submiss[0]?.theme || "N/A", // Retain the existing theme if present
+      pname,
+      desc,
+      githubLink,
+      videoLink: videoLink || null, // Optional field
+      liveLink: liveLink || null,   // Optional field
+    };
+
+    // Save the leader's updated data
+    await leader.save();
+
+    // Get the team members from the leader's hackathon data
+    const { teamMembers } = leader.hackhist[leaderHackathonIndex];
+
+    // Update submissions for all team members
+    const updateTeamSubmissions = teamMembers.map(async (member) => {
+      const teamMember = await userSchema.findOne({ email: member.email });
+      if (teamMember) {
+        const memberHackathonIndex = teamMember.hackhist.findIndex(
+          (entry) => entry.hackid.toString() === hackathonId
+        );
+
+        if (memberHackathonIndex !== -1) {
+          teamMember.hackhist[memberHackathonIndex].submiss[0] = {
+            theme: teamMember.hackhist[memberHackathonIndex].submiss[0]?.theme || "N/A",
+            pname,
+            desc,
+            githubLink,
+            videoLink: videoLink || null,
+            liveLink: liveLink || null,
+          };
+
+          await teamMember.save();
+        }
+      }
+    });
+
+    // Wait for all team members' submissions to be updated
+    await Promise.all(updateTeamSubmissions);
+
+    res.status(200).json({
+      message: "Submission updated successfully for the leader and all team members.",
+      submission: leader.hackhist[leaderHackathonIndex].submiss[0],
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "An error occurred while updating the submission.",
+      error: error.message,
+    });
+  }
+};
+
+  
+
+       
 module.exports = {
   getMails,
   registerMain,
@@ -1005,6 +1258,8 @@ module.exports = {
   deleteContest,
   getEventData,
   editEvent,
-  deleteEvent
+  deleteEvent,
+  getProjectSubmission,
+  editSubmission
 
 };

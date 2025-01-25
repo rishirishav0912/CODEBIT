@@ -11,6 +11,7 @@ const ContestProblemPage = () => {
     const token = user?.tokene || null;
     // State to hold the contest data (including problems)
     const [contest, setContest] = useState(null);
+    const [currentUser, setCurrentUser] = useState({});
 
     // State to handle loading and errors
     const [loading, setLoading] = useState(true);
@@ -58,6 +59,8 @@ const ContestProblemPage = () => {
                 try {
                     const newData = await leaderboardData(id);
                     setRankingsData(newData.rankedUsers);
+                    const currentUser = newData.rankedUsers.find((rankedUser) => rankedUser.email === user.userid);
+                    setCurrentUser(currentUser);
                 }
                 catch (error) {
                     console.log(error);
@@ -82,8 +85,10 @@ const ContestProblemPage = () => {
     if (loading) return <div className="bg-[#12181F] h-[100vh] w-full] text-[#0DB276] flex justify-center items-center">Loading...</div>;
     if (error) return <div className="bg-[#12181F] h-[100vh] w-full] text-[#0DB276] flex justify-center items-center">{error}</div>;
 
+    console.log(currentUser);
+
     return (
-        <div className="flex min-h-screen bg-[#171717] text-white">
+        <div className="flex flex-col lg:flex-row min-h-screen bg-[#171717] text-white">
             {
                 contest ?
                     (new Date(contest.endTime) === new Date()) ?
@@ -93,12 +98,13 @@ const ContestProblemPage = () => {
                         (
                             <>
                                 <div className="flex-1 py-8 px-4 space-y-4 w-full h-full">
-                                    <div className="text-[40px] text-[#0EA96E] tracking-wider font-extrabold mb-6 rounded-lg w-fit flex justify-center py-2 px-4">
+                                    <div className="text-[40px] text-[#0EA96E] tracking-wider font-extrabold mb-6 rounded-lg w-fit flex justify-center py-2 px-4 border-l-[4px] border-[#23d18b] hover:bg-[#1D332D] cursor-pointer duration-200"
+                                        onClick={() => navigate("/contest")}>
                                         {name}
                                     </div>
 
                                     {/* Loop through problems and display them */}
-                                    <div className="w-fulls max-w-[700px]s w-[80%] space-y-4 p-8">
+                                    <div className="max-w-[700px]s w-[95%] space-y-4 p-8">
                                         {contest?.problems?.map((problem, index) => (
                                             <div
                                                 key={index}
@@ -111,8 +117,19 @@ const ContestProblemPage = () => {
                                                     <span>Max Score : </span>
                                                     <span className="material-icons">currency_bitcoin</span>
                                                     {problem.pnt}
+                                                    <span className="ml-10 text-[13px]">{
+                                                        (currentUser.questions || []).length && (
+                                                            currentUser.questions[index].status === 'pass' ?
+                                                                <span className="bg-[#1D332D] text-[#34D399] p-2 px-4 rounded-3xl">Solved</span>
+                                                                :
+                                                                (currentUser.questions[index].status === 'fail' ?
+                                                                    <span className="bg-[#412424] text-[#F8664B] p-2 px-4 rounded-3xl">Unsolved</span>
+                                                                    :
+                                                                    <span className="bg-[#535131] rounded-3xl p-2 text-[#fad957e8] px-4">Not Attempted</span>
+                                                                )
+                                                        )
+                                                    }</span>
                                                 </div>
-
                                                 <button
                                                     onClick={() => navigate(`/${id}/${problem._id}/codeEditor`, {
                                                         state: {
@@ -130,45 +147,53 @@ const ContestProblemPage = () => {
                                 </div>
 
                                 {/* Right Side: Leaderboard Section */}
-                                <div className="flex flex-col items-end p-4 w-[300px]s w-[35%] space-y-4 mr-8 mt-40 ">
+                                <div className="flex flex-col w-full lg:w-[35%] p-8 pt-0">
+                                    <div className="flex flex-col p-4 mt-40 border-2 w-[50%]  border-[#333333] bg-[#262626] rounded-lg shadow-lg">
+                                        <div>Rank:  # {(rankingsData.findIndex((user) => user.email === currentUser)) + 1 || null}</div>
+                                        <div>Score: {currentUser.score || 0}</div>
+                                    </div>
+                                    <div className="flex flex-col items-end pt-4 pr-4 w-full space-y-4">
 
-                                    {/* Leaderboard Table */}
-                                    {
-                                        rankingsData?.length === 0 ?
-                                            (
-                                                <div className="flex justify-center items-center min-h-[200px]">
-                                                    <p className="text-xl text-gray-400">No data available.</p>
-                                                </div>
-                                            ) :
-                                            (
-                                                <div className="border-2 border-[#21272E]s border-[#333333] bg-[#262626] rounded-lg shadow-lg p-8 w-[600px]s w-full hover:border-[#174337] overflow-auto">
-                                                    <div className="text-[28px] font-bold text-[#0EA96E]s text-[#34D399] mb-4 tracking-wider">Rankings</div>
-                                                    <table className="w-full text-base text-[24px] ">
-                                                        <thead className="text-[#0EA96E]s text-[#A3A3A3]">
-                                                            <tr className="border-b border-[#333333]">
-                                                                <th className="px-4 py-2 text-left">Rank</th>
-                                                                <th className="px-4 py-2 text-left">Name</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody className="text-slate-300s text-[#E5E5E5] font-medium">
-                                                            {rankingsData.map((student, index) => (
-                                                                <tr key={index} className="border-b border-[#2f3741]s border-[#333333] hover:bg-[#232A28] font-light hover:text-[#34D399]">
-                                                                    <td className="px-4 py-2">#{index + 1}</td>
-                                                                    <td className="px-4 py-2">{student.email}</td>
+                                        {/* Leaderboard Table */}
+                                        {
+                                            rankingsData?.length === 0 ?
+                                                (
+                                                    <div className="flex justify-center items-center min-h-[200px]">
+                                                        <p className="text-xl text-gray-400">No data available.</p>
+                                                    </div>
+                                                ) :
+                                                (
+                                                    <div className="border-2 border-[#21272E]s border-[#333333] bg-[#262626] rounded-lg shadow-lg p-8 w-[600px]s w-full hover:border-[#174337] overflow-auto">
+                                                        <div className="text-[28px] font-bold text-[#0EA96E]s text-[#34D399] mb-4 tracking-wider">Rankings</div>
+                                                        <table className="w-full text-base text-[24px] ">
+                                                            <thead className="text-[#0EA96E]s text-[#A3A3A3]">
+                                                                <tr className="border-b border-[#333333]">
+                                                                    <th className="px-4 py-2 text-left">Rank</th>
+                                                                    <th className="px-4 py-2 text-left">Name</th>
                                                                 </tr>
-                                                            ))}
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            )
-                                    }
-                                    <button
-                                        onClick={() => navigate(`/contestleaderboard/${id}`)}
-                                        className="text-[#0EA96E] border border-[#2f3741]s hover:bg-[#2f3741]s border-[#174337] bg-[#1D332D] hover:bg-[#064e3b]  py-2 px-6 rounded-lg font-medium"
-                                    >
-                                        Leaderboard →
-                                    </button>
+                                                            </thead>
+                                                            <tbody className="text-slate-300s text-[#E5E5E5] font-medium">
+                                                                {rankingsData.map((student, index) => (
+                                                                    <tr key={index} className="border-b border-[#2f3741]s border-[#333333] hover:bg-[#232A28] font-light hover:text-[#34D399]">
+                                                                        <td className="px-4 py-2">#{index + 1}</td>
+                                                                        <td className="px-4 py-2">{student.email}</td>
+                                                                    </tr>
+                                                                ))}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                )
+                                        }
+                                        <button
+                                            onClick={() => navigate(`/contestleaderboard/${id}`)}
+                                            className="text-[#0EA96E] border border-[#2f3741]s hover:bg-[#2f3741]s border-[#174337] bg-[#1D332D] hover:bg-[#064e3b]  py-2 px-6 rounded-lg font-medium"
+                                        >
+                                            Leaderboard →
+                                        </button>
+                                    </div>
                                 </div>
+
+
                             </>
                         )
 

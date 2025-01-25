@@ -84,34 +84,77 @@ const ContestHackathonTable = ({ UP, feat }) => {
         fetchData();
     }, [UP, feat]);
 
-    const renderHackathonList = () =>
+    const renderHackathonList = () => {
 
-        hackathons.map(({ _id, hackName, tSize, regTime, hackTime }) => {
-            const isRegistered = userRegistrations.includes(_id); // Check if the user is registered
-
-            return (
-                <div key={_id} className="flex flex-col p-4 rounded-lg w-[100%]">
-                    <ContestHackathonElement
-                        compName="hackathon"
-                        hackathonId={_id}
-                        hackathonName={hackName}
-                        teamSize={tSize}
-                        registrationTimeline={regTime}
-                        hackathonTimeline={hackTime}
-                        isRegistered={isRegistered} // Pass registration status
-                    />
-                </div>
-            );
-        });
-
-    const renderContestList = () => {
         const settings = {
             centerMode: true,
+            infinite: !(hackathons.length === 1),
+            arrows: !(hackathons.length === 1),
             slidesToShow: 1,
             centerPadding: "60px",
             autoplay: true,
             autoplaySpeed: 3000,
-            speed:800
+            speed: 800
+        };
+
+        return <>{UP === "upcoming" ? <Slider {...settings} className="w-[50vw] h-fit duration-1000">
+            {
+                hackathons.map(({ _id, hackName, tSize, regTime, hackTime }) => {
+                    const isRegistered = userRegistrations.includes(_id); // Check if the user is registered
+
+                    return (
+                        <div key={_id} className="flex flex-col p-4 rounded-lg w-[100%]">
+                            <ContestHackathonElement
+                                key={_id}
+                                compName="hackathon"
+                                hackathonId={_id}
+                                hackathonName={hackName}
+                                teamSize={tSize}
+                                registrationTimeline={regTime}
+                                hackathonTimeline={hackTime}
+                                isRegistered={isRegistered} // Pass registration status
+                            />
+                        </div>
+                    );
+                })
+            }
+        </Slider>
+            : <>
+                {
+                    hackathons.map(({ _id, hackName, tSize, regTime, hackTime }) => {
+                        const isRegistered = userRegistrations.includes(_id); // Check if the user is registered
+
+                        return (
+                            <div key={_id} className="flex flex-col p-4 rounded-lg w-[100%]">
+                                <ContestHackathonElement
+                                    key={_id}
+                                    compName="hackathon"
+                                    hackathonId={_id}
+                                    hackathonName={hackName}
+                                    teamSize={tSize}
+                                    registrationTimeline={regTime}
+                                    hackathonTimeline={hackTime}
+                                    isRegistered={isRegistered} // Pass registration status
+                                />
+                            </div>
+                        );
+                    })
+                }
+            </>
+        }
+        </>
+    }
+
+    const renderContestList = () => {
+        const settings = {
+            centerMode: true,
+            infinite: !(contests.length === 1),
+            arrows: !(contests.length === 1),
+            slidesToShow: 1,
+            centerPadding: "60px",
+            autoplay: true,
+            autoplaySpeed: 3000,
+            speed: 800
         };
 
         return <>{UP === "upcoming" ? <Slider {...settings} className="w-[50vw] h-fit duration-1000">
@@ -122,6 +165,7 @@ const ContestHackathonTable = ({ UP, feat }) => {
                 return (
                     <div key={_id} className="flex rounded-lg p-4 w-[100%] focus:scale-105 duration-500">
                         <ContestHackathonElement
+                            key={_id}
                             compName="contest"
                             hackathonId={_id}
                             hackathonName={contName}
@@ -139,6 +183,7 @@ const ContestHackathonTable = ({ UP, feat }) => {
                 return (
                     <div key={_id} className="flex rounded-lg p-4 ">
                         <ContestHackathonElement
+                            key={_id}
                             compName="contest"
                             hackathonId={_id}
                             hackathonName={contName}
@@ -152,7 +197,7 @@ const ContestHackathonTable = ({ UP, feat }) => {
     }
 
     return (
-        <div className="flex flex-col w-[100%] slider-container">
+        <div className="relative flex flex-col w-fit slider-container">
             {loading ? (
                 <p>Loading...</p>
             ) : feat === "hackathon" ? (

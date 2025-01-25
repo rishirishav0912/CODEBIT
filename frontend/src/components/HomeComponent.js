@@ -111,16 +111,16 @@ const HomeComponent = () => {
                         {userType === "admin" && (
                             <div className="flex gap-4 px-2 py-1 absolute right-8 top-4 ">
                                 <img
-                                    src="\images\edit.png"
+                                    src="images/edit2.png"
                                     alt="edit"
                                     onClick={() => handleEditClick(event)}
-                                    className="w-[20px] h-[20px] filter invert-[50%] sepia-[80%] saturate-[500%] hue-rotate-[120deg] hover:cursor-pointer hover:scale-110 active:scale-90 transition-transform duration-200 "
+                                    className="w-[20px] h-[20px] hover:cursor-pointer hover:scale-110 active:scale-90 transition-transform duration-200 "
                                 />
                                 <img
-                                    src="\images\delete.png"
+                                    src="images/delete2.png"
                                     alt="delete"
                                     onClick={() => handleDeleteClick(event)}
-                                    className="w-[20px] h-[20px] filter invert-[50%] sepia-[80%] saturate-[500%] hue-rotate-[120deg] hover:cursor-pointer hover:scale-110 active:scale-90 transition-transform duration-200"
+                                    className="w-[20px] h-[20px] hover:cursor-pointer hover:scale-110 active:scale-90 transition-transform duration-200"
 
                                 />
 
@@ -171,7 +171,7 @@ const HomeComponent = () => {
                                                     {teams.map((team, idx) => (
                                                         <div
                                                             key={idx}
-                                                            className={`mb-6 border-b-2 border-[#0a9160] pb-6 text-lg text-slate-200 ${idx === 0 ? "border-t-2 border-[#0a9160] pt-6" : ""
+                                                            className={`mb-6 border-b-2 border-[#333333] pb-6 text-lg text-slate-200 ${idx === 0 ? "border-t-2 border-[#333333] pt-6" : ""
                                                                 }`}
                                                         >
                                                             {/* Rank */}
@@ -202,8 +202,7 @@ const HomeComponent = () => {
                                                                 {team.members.map((member, memberIdx) => (
                                                                     <div
                                                                         key={memberIdx}
-                                                                        className={`py-1 text-center capitalize rounded ${memberIdx % 2 === 0 ? "bg-gray-500" : "bg-gray-600"
-                                                                            }`}
+                                                                        className={`py-1 text-center capitalize rounded text-[#34D399] bg-[#1D332D] hover:bg-[#1b2f29]  border-2 border-[#174337]`}
                                                                     >
                                                                         <p>{member.name}</p>
 
