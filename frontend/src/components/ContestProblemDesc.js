@@ -11,6 +11,18 @@ const ContestProblemDesc = ({ w, h, problem, name, id }) => {
 
   // fetching contest data
   const { fetchContestData } = useContest();
+
+  const convertToIST = (dateString) => {
+    if (!dateString) return "N/A";
+    const utcDate = new Date(dateString);
+    const istDate = new Date(utcDate.getTime() - (5.5 * 60 * 60 * 1000));
+
+    return istDate.toLocaleString("en-US", {
+        dateStyle: "short",
+        timeStyle: "short",
+    });
+};
+
   useEffect(() => {
     const setTimer = async () => {
       try {
@@ -19,7 +31,7 @@ const ContestProblemDesc = ({ w, h, problem, name, id }) => {
         console.log("contest data is", contestData)
         const { endTime } = contestData;
         console.log(endTime);
-        setEndingtime(endTime);
+        setEndingtime(convertToIST(endTime));
       }
       catch (error) {
         

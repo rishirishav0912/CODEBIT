@@ -282,9 +282,9 @@ const ContestHackathonElement = ({
 
                         <div className="font-bold flex items-center gap-4 ">
                             {(compName === 'contest') && (contestRunning ?
-                                <><span>Contest Ends in : </span> <RunningTimer deadline={isoToISTString(hackathonTimeline.end)} compName={compName} /></>
+                                <><span>Contest Ends in : </span> <RunningTimer deadline={hackathonEnd} compName={compName} /></>
                                 :
-                                <><span>Contest Starts in : </span> <RegTimer deadline={hackathonEnd} compName={compName} />
+                                <><span>Contest Starts in : </span> <RegTimer deadline={hackathonStart} compName={compName} />
                                 </>)
                             }
 
