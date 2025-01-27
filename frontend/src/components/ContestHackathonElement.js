@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import MyEditModal from "./EditModals";
 import MyDeleteModal from "./DeleteModals";
 import "react-toastify/dist/ReactToastify.css";
-import { RegTimer } from "./timer";
+import { RegTimer, RunningTimer } from "./timer";
 
 const ContestHackathonElement = ({
     compName,
@@ -15,7 +15,7 @@ const ContestHackathonElement = ({
     hackathonTimeline,
     isRegistered,
 }) => {
-    const user = JSON.parse(localStorage.getItem("user")); // Retrieve user from localStorage
+    const user = JSON.parse(localStorage.getItem("user"));
     const userType = user?.userType || null;
     const userEmail = user?.userid || null;
     const token = user?.tokene || null;
@@ -25,35 +25,9 @@ const ContestHackathonElement = ({
     const [editContestModal, setEditContestModal] = useState(false); // New State
     const [deleteContestModal, setDeleteContestModal] = useState(false); // New State
     const [isProjectSubmitted, setIsProjectSubmitted] = useState(false);
-
-    const currentDate = new Date();
-    const registrationStart = registrationTimeline?.start ? new Date(registrationTimeline.start) : null;
-    const registrationEnd = registrationTimeline?.end ? new Date(registrationTimeline.end) : null;
-    const hackathonStart = hackathonTimeline?.start ? new Date(hackathonTimeline.start) : null;
-    const hackathonEnd = hackathonTimeline?.end ? new Date(hackathonTimeline.end) : null;
-    const registrationNotStarted = registrationStart && registrationStart > currentDate;
-    const registrationClosed = registrationEnd && registrationEnd < currentDate;
-    const hackathonNotStarted = hackathonStart && hackathonStart > currentDate;
-
-    const contestRunning = hackathonStart <= currentDate && hackathonEnd >= currentDate; // Check if contest is running
-
-    const hackathonEnded = hackathonEnd && hackathonEnd < currentDate;
-    let deadline;
-    if (compName === "hackathon") {
-        if (registrationNotStarted) {
-            deadline = registrationStart; // Registration hasn't started
-        } else if (registrationClosed) {
-            deadline = hackathonStart; // Registration closed, set hackathon start time as deadline
-        }
-    } else if (compName === "contest") {
-        deadline = hackathonStart; // Contest deadline is always the contest start time
-    }
-
     const convertToIST = (dateString) => {
         if (!dateString) return "N/A";
-
         const utcDate = new Date(dateString);
-        // Add IST offset (+5 hours 30 minutes)
         const istDate = new Date(utcDate.getTime() - (5.5 * 60 * 60 * 1000));
 
         return istDate.toLocaleString("en-US", {
@@ -61,6 +35,48 @@ const ContestHackathonElement = ({
             timeStyle: "short",
         });
     };
+    function isoToISTString(isoDate) {
+        const date = new Date(isoDate); // Parse the ISO date
+        const utcTime = date.getTime(); // Get UTC timestamp in milliseconds
+        const istOffset = 5.5 * 60 * 60 * 1000; // IST offset in milliseconds (+5:30)
+        const istDate = new Date(utcTime - istOffset); // Adjust UTC to IST
+        return istDate; // Convert to string with IST timezone
+    }
+    const currentDate = new Date();
+
+    const registrationStart = registrationTimeline?.start ? convertToIST(registrationTimeline.start) : null;
+    const registrationEnd = registrationTimeline?.end ? convertToIST(registrationTimeline.end) : null;
+    const hackathonStart = hackathonTimeline?.start ? convertToIST(hackathonTimeline.start) : null;
+    const hackathonEnd = hackathonTimeline?.end ? convertToIST(hackathonTimeline.end) : null;
+
+
+
+
+    const registrationNotStarted = registrationStart && isoToISTString(registrationTimeline.start) > currentDate;
+    const registrationClosed = registrationEnd && isoToISTString(registrationTimeline.end) < currentDate;
+    const hackathonNotStarted = hackathonStart && isoToISTString(hackathonTimeline.start) > currentDate;
+
+    const contestRunning = isoToISTString(hackathonTimeline.start) <= currentDate && isoToISTString(hackathonTimeline.end) >= currentDate; // Check if contest is running
+
+    const hackathonEnded = hackathonEnd && isoToISTString(hackathonTimeline.end) < currentDate;
+    let deadline;
+    if (compName === "hackathon") {
+        if (registrationNotStarted) {
+            deadline = registrationStart;
+        } else if (registrationClosed) {
+            deadline = hackathonStart;
+        }
+    } else if (compName === "contest") {
+
+        deadline = hackathonStart;
+
+    }
+
+
+
+
+    // Convert hackathonEnd to IST
+    const hackathonStartIST = convertToIST(hackathonStart);
     useEffect(() => {
         const checkProjectSubmission = async () => {
             if (!userEmail || !hackathonId) return;
@@ -93,7 +109,7 @@ const ContestHackathonElement = ({
     }, [userEmail, hackathonId, token]);
 
     const isRegistrationOpen =
-        userType !== "admin" && !registrationClosed && !isRegistered && hackathonEnd > currentDate;
+        userType !== "admin" && !registrationClosed && !isRegistered && isoToISTString(hackathonTimeline.end) > currentDate;
     const canViewLeaderboard = hackathonEnded;
     const handleRegisterClick = async () => {
         if (!user) {
@@ -170,11 +186,12 @@ const ContestHackathonElement = ({
         if (compName === "hackathon") setDeleteHackathonModal(false);
         if (compName === "contest") setDeleteContestModal(false);
     };
+
     return (
-        <div className={`relative flex items-center justify-between text-sm lg:text-base pt-6 px-4 pb-8 border-2 border-[#333333] bg-[#262626] hover:border-[#174337] rounded-lg h-full lg:gap-8 ${currentDate > hackathonEnd ? "w-[50vw]" : ""}`}>
+        <div className={`relative flex items-center justify-between text-sm lg:text-base pt-6 px-4 pb-8 border-2 border-[#333333] bg-[#262626] hover:border-[#174337] rounded-lg h-full lg:gap-8 ${currentDate > isoToISTString(hackathonTimeline.end) ? "w-[50vw]" : ""}`}>
             {userType === "admin" && (
-                (compName === "hackathon" && currentDate < hackathonEnd) ||
-                (compName === "contest" && currentDate < hackathonEnd)
+                (compName === "hackathon" && currentDate < (isoToISTString(hackathonTimeline.end))) ||
+                (compName === "contest" && currentDate < (isoToISTString(hackathonTimeline.end)))
             ) && (
                     <div className="flex gap-4 px-2 py-1 absolute right-8 top-4">
                         <img
@@ -233,28 +250,57 @@ const ContestHackathonElement = ({
                         <div>
                             <strong>Contest Date:</strong>{" "}
                             {hackathonStart
-                                ? `${hackathonStart.toLocaleDateString("en-GB", { timeZone: "UTC", dateStyle: "medium" })}`
+                                ? new Date(hackathonStart).toLocaleDateString("en-IN", {
+                                    timeZone: "Asia/Kolkata",
+                                })
                                 : "N/A"}
                         </div>
                         <div>
                             <strong>Contest Time:</strong>{" "}
                             {hackathonStart && hackathonEnd
-                                ? `${hackathonStart.toLocaleTimeString("en-US", { timeZone: "UTC", timeStyle: "short", hour12: true })} - ${hackathonEnd.toLocaleTimeString(
-                                    "en-US",
-                                    { timeZone: "UTC", timeStyle: "short", hour12: true }
-                                )}`
+                                ? `${new Date(hackathonStart).toLocaleTimeString("en-IN", {
+                                    timeZone: "Asia/Kolkata",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    hour12: true,
+                                })} - ${new Date(hackathonEnd).toLocaleTimeString("en-IN", {
+                                    timeZone: "Asia/Kolkata",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    hour12: true,
+                                })}`
                                 : "N/A"}
                         </div>
                     </>
                 )}
                 {(
                     (compName === "hackathon" && registrationNotStarted) ||
-                    (compName === "contest" && currentDate < hackathonStart)
+                    (compName === "contest" && currentDate < isoToISTString(hackathonTimeline.start)
+                        ? true
+                        : currentDate < isoToISTString(hackathonTimeline.end))
                 ) && (
+
                         <div className="font-bold flex items-center gap-4 ">
-                            <p>Start in : </p>
-                            <RegTimer deadline={deadline} compName={compName} />
+                            {(compName === 'contest') && (contestRunning ?
+                                <><span>Contest Ends in : </span> <RunningTimer deadline={isoToISTString(hackathonTimeline.end)} compName={compName} /></>
+                                :
+                                <><span>Contest Starts in : </span> <RegTimer deadline={hackathonEnd} compName={compName} />
+                                </>)
+                            }
+
+                            {
+                                (compName === 'hackathon') && (
+                                    (currentDate >= isoToISTString(registrationTimeline.start) &&
+                                        currentDate <= isoToISTString(registrationTimeline.end)) ?
+                                        (<>Registration Closes in : <RegTimer compName={compName} deadline={registrationEnd} /></>)
+                                        :
+                                        (currentDate >= isoToISTString(hackathonTimeline.start) &&
+                                            currentDate <= isoToISTString(hackathonTimeline.end) &&
+                                            <>Hackathon Ends in : <RunningTimer compName={compName} deadline={hackathonEnd} /></>)
+                                )
+                            }
                         </div>
+
                     )}
 
             </div>
@@ -282,8 +328,8 @@ const ContestHackathonElement = ({
                 {isRegistered && (
                     <>
                         {compName === "hackathon" &&
-                            currentDate >= hackathonStart &&
-                            currentDate <= hackathonEnd && ( // Only show if hackathon has not ended
+                            currentDate >= isoToISTString(hackathonTimeline.start) &&
+                            currentDate <= isoToISTString(hackathonTimeline.end) && ( // Only show if hackathon has not ended
                                 <div
                                     onClick={isProjectSubmitted ? null : handleEnterClick}
                                     className={`w-fit ${isProjectSubmitted
@@ -293,7 +339,7 @@ const ContestHackathonElement = ({
                                 >
                                     {isProjectSubmitted ? (
                                         <button onClick={() => navigate(`/editsubmission/${hackathonId}`)}
-                                            className="w-fit cursor-pointer  border-2 border-[#174337] hover:bg-[#1D332D] text-[#34D399] rounded-lg py-2 px-4 text-center"
+                                            className="w-fit cursor-pointer border-2 border-[#174337] hover:bg-[#1D332D] text-[#34D399] rounded-lg py-2 px-4 text-center"
                                         >
                                             Edit Submission
                                         </button>

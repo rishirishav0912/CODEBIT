@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import useInstance from "../hooks/useIntance";
 
 export const RegTimer = ({ deadline, compName }) => {
-    
+
     const [hasCreatedInstance, setHasCreatedInstance] = useState(false);
     const [days, setDays] = useState(0);
     const [hours, setHours] = useState(0);
@@ -48,23 +48,16 @@ export const RegTimer = ({ deadline, compName }) => {
         <div className="text-[15px] text-[#0DB256]">
             {(days < 1 && days >= 0) ? (
                 <div className="flex">
-                    <p>{hours.toString().padStart(2, '0')}:</p>
-                    <p>{minutes.toString().padStart(2, '0')}:</p>
+                    <p>{hours.toString().padStart(2, '0')}: </p>
+                    <p>{minutes.toString().padStart(2, '0')}: </p>
                     <p>{seconds.toString().padStart(2, '0')}</p>
                 </div>
-            ) : ((days < 5 && days > 0) ? (
-                <div className="flex justify-center items-center ">
-                    <p>{days}d</p>
-                    <p>{hours.toString().padStart(2, '0')}h</p>
-                    <p>{minutes.toString().padStart(2, '0')}m</p>
-                    <p>{seconds.toString().padStart(2, '0')}s</p>
-                </div>
             ) : ((days > 0) ? (
-                <div>{days}days</div>
+                <div>{days} days</div>
             ) : (
                 <div></div>
             )
-            ))}
+            )}
         </div>
     );
 };
@@ -80,10 +73,10 @@ export const RunningTimer = ({ deadline, compName }) => {
 
     useEffect(() => {
         const updateTimer = () => {
-            const nowUTC = Date.now(); // Current timestamp in UTC
-const istOffset = 5.5 * 60 * 60 * 1000; // Offset for IST in milliseconds
-const nowIST = new Date(nowUTC + istOffset);
-            const remainingTime = Date.parse(deadline) - nowIST;
+            // const nowUTC = Date.now(); // Current timestamp in UTC
+            // const istOffset = 5.5 * 60 * 60 * 1000; // Offset for IST in milliseconds
+            // const nowIST = new Date(nowUTC + istOffset);
+            const remainingTime = Date.parse(deadline) - Date.now();
             setTimeLeft(remainingTime);
 
             // Trigger instanceDelete if the timer reaches zero and compName is "contest"
@@ -103,28 +96,28 @@ const nowIST = new Date(nowUTC + istOffset);
     }, [deadline, compName, instanceDelete]);
 
     // Convert timeLeft (in milliseconds) to hours, minutes, and seconds
+    const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
     const hours = Math.floor((timeLeft / (1000 * 60 * 60)) % 24);
     const minutes = Math.floor((timeLeft / (1000 * 60)) % 60);
     const seconds = Math.floor((timeLeft / 1000) % 60);
 
-    // Check if the time is within the desired range (greater than 0 and ≤ 3 hours)
-    const isValidTime = timeLeft > 0 
-    // && timeLeft <= 3 * 60 * 60 * 1000; // 3 hours in milliseconds
+    // // Check if the time is within the desired range (greater than 0 and ≤ 3 hours)
+    // const isValidTime = timeLeft > 0
+    // // && timeLeft <= 3 * 60 * 60 * 1000; // 3 hours in milliseconds
 
     return (
-        <div className="text-sm text-[#0DB256]s tracking-widest">
-            {isValidTime ? ( // Display only if time is within the valid range
+        <div className="text-[15px] text-[#0DB256]">
+            {(days < 1 && days >= 0) ? (
                 <div className="flex">
                     <p>{hours.toString().padStart(2, '0')}: </p>
                     <p>{minutes.toString().padStart(2, '0')}: </p>
                     <p>{seconds.toString().padStart(2, '0')}</p>
                 </div>
+            ) : ((days > 0) ? (
+                <div>{days} days</div>
             ) : (
-                <div className="flex">
-                    <p>00: </p>
-                    <p>00: </p>
-                    <p>00</p>
-                </div>
+                <div></div>
+            )
             )}
         </div>
     );

@@ -11,6 +11,14 @@ const ContestHackathonTable = ({ UP, feat }) => {
     const [userRegistrations, setUserRegistrations] = useState([]);
     const [userRegistrationscontest, setUserRegistrationscontest] = useState([]);
     const [loading, setLoading] = useState(true);
+    function isoToISTString(isoDate) {
+        const date = new Date(isoDate); // Parse the ISO date
+        const utcTime = date.getTime(); // Get UTC timestamp in milliseconds
+        const istOffset = 5.5 * 60 * 60 * 1000; // IST offset in milliseconds (+5:30)
+        const istDate = new Date(utcTime - istOffset); // Adjust UTC to IST
+        return istDate; // Convert to string with IST timezone
+    }
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -24,9 +32,10 @@ const ContestHackathonTable = ({ UP, feat }) => {
                     const hackathonData = await hackathonResponse.json();
 
                     const filteredHackathons = hackathonData.filter(h =>
-                        UP === "upcoming"
-                            ? new Date(h.hackTime.end) > currentDate
-                            : new Date(h.hackTime.end) <= currentDate
+                        
+                         UP === "upcoming"
+                            ? isoToISTString(h.hackTime.end) > currentDate
+                            : isoToISTString(h.hackTime.end) <= currentDate
                     );
 
                     setHackathons(filteredHackathons);
@@ -52,8 +61,8 @@ const ContestHackathonTable = ({ UP, feat }) => {
 
                     const filteredContests = contestData.filter(c =>
                         UP === "upcoming"
-                            ? new Date(c.endTime) > currentDate
-                            : new Date(c.endTime) <= currentDate
+                            ? isoToISTString(c.endTime) > currentDate
+                            : isoToISTString(c.endTime) <= currentDate
                     );
 
                     setContests(filteredContests);
@@ -175,13 +184,13 @@ const ContestHackathonTable = ({ UP, feat }) => {
                     </div>
                 );
             })}
-        </Slider> : <>
+        </Slider> : <div className="w-[50vw]">
             {contests.map(({ _id, contName, startTime, endTime }) => {
 
                 const isRegistered = userRegistrationscontest.some(reg => reg.contestId === _id);
 
                 return (
-                    <div key={_id} className="flex rounded-lg p-4 ">
+                    <div key={_id} className="flex w-[100%] rounded-lg p-4 ">
                         <ContestHackathonElement
                             key={_id}
                             compName="contest"
@@ -193,11 +202,11 @@ const ContestHackathonTable = ({ UP, feat }) => {
                     </div>
                 );
             })}
-        </>}</>
+        </div>}</>
     }
 
     return (
-        <div className="relative flex flex-col w-fit slider-container">
+        <div className="relative flex flex-col w-full slider-container">
             {loading ? (
                 <p>Loading...</p>
             ) : feat === "hackathon" ? (
