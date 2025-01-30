@@ -4,7 +4,8 @@ const userSchema=require("../models/userSchema");
 const Token=require("../models/tokenSchema");
 const {registerStudent,loginUser,showHackathons,showContest,getUserRegisteredHackathons,
     getUserRegisteredContests,getEvents,getAnnouncement,getTeamDetails,checkRegistration,
-    fetchLeaderboardData
+    fetchLeaderboardData,
+    getNotifications
 }=require("../controllers/publiccontroller");
 const { getContestProblems } = require("../controllers/admincontroller");
 router.post("/registerstudent",registerStudent);
@@ -19,6 +20,7 @@ router.get("/teams",getTeamDetails);
 router.get("/teams/check-registration",checkRegistration);
 router.get("/leaderboard-data/:contestId", fetchLeaderboardData);
 router.get("/contestproblems/:id",getContestProblems);
+router.get("/notifications",getNotifications);
 router.get("/users/:id/verify/:token",async(req,res)=>{
 try{
     console.log("me yaha hu");
