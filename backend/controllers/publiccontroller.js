@@ -2,6 +2,7 @@ const userSchema = require("../models/userSchema");
 const VerificationSchema = require("../models/VerificationSchema");
 const ContestSchema = require("../models/ContestSchema");
 const HackathonSchema = require("../models/HackathonSchema");
+const Notification = require("../models/Notificationschema");
 // const ContestRegistration=require("../models/ContestRegistrationSchema");
 // const CreateContestSchema=require("../models/CreateContestSchema");// Import the student register schema
 const EventSchema = require("../models/EventSchema");
@@ -347,6 +348,17 @@ const fetchLeaderboardData = async (req, res) => {
   }
 }
 
+const getNotifications = async (req,res) => {
+  try {
+    const notifications = await Notification.find().sort({ ct: -1 });
+    res.status(200).json({notifications: notifications});
+  }
+  catch (error) {
+    console.log(error)
+  }
+
+}
+
 
 
 module.exports = {
@@ -361,4 +373,5 @@ module.exports = {
   getTeamDetails,
   checkRegistration,
   fetchLeaderboardData,
+  getNotifications
 };

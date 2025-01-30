@@ -19,7 +19,9 @@ import EditHackathon from "./EditHackathon.js";
 import EditContest from "./EditContest.js";
 import EditEvent from "./EditEvent";
 import CodeSubmission from "./CodeSubmission.js";
-import EditSubmission from "./EditSubmission.jsx"
+import EditSubmission from "./EditSubmission.jsx";
+import Notifications from "./Notifications.jsx"
+
 function NavigatingPage() {
    
     return (
@@ -48,6 +50,7 @@ function NavigatingPage() {
                 <Route path="/editevent/:hackathonId" element={<EditEvent/>}/>
                 <Route path="/:contestId/:problemId/codeEditor" element={<CodeSubmission />} />
                 <Route path="/editsubmission/:hackathonId" element={<EditSubmission />}/>
+                <Route path="/notification" element={<Notifications />}/>
             </Routes>
         </div>
     );

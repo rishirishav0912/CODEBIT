@@ -59,6 +59,14 @@ const Navbar = () => {
           Hackathons
         </div>
 
+        {/* Notifications Link */}
+        <div
+          onClick={() => handleNavigation('/notification')}
+          className={`px-2 border-l-[4px] ${location.pathname === "/notification" ? "border-[#23d18b]" : "border-transparent"} hover:cursor-pointer transition duration-200 text-[#D4D4D4] hover:text-[#23d18b] hover:bg-[#1D332D] py-2 rounded-lg`}
+        >
+          Notifications
+        </div>
+
         {/* Login / Logout Button */}
         {!user ? (
           <button
