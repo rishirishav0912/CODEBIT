@@ -4,7 +4,6 @@ const NotificationSchema = new mongoose.Schema({
     userid: {
         type: String,
         required: true,
-        unique: true,
     },
     type:{
         type:String,
@@ -13,7 +12,13 @@ const NotificationSchema = new mongoose.Schema({
     text:{
         type:String
     },
-    ct: { type: Date, default: Date.now(), expires: 900 }
+    hackid:{
+        type: String
+    },
+    tname:{
+        type:String
+    },
+    ct: { type: Date, default: Date.now, expires: 900 }
 });
 
 module.exports = mongoose.model("Notification", NotificationSchema);

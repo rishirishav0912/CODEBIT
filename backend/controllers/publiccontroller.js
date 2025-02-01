@@ -2,7 +2,7 @@ const userSchema = require("../models/userSchema");
 const VerificationSchema = require("../models/VerificationSchema");
 const ContestSchema = require("../models/ContestSchema");
 const HackathonSchema = require("../models/HackathonSchema");
-const Notification = require("../models/Notificationschema");
+const Notification = require("../models/NotificationSchema");
 // const ContestRegistration=require("../models/ContestRegistrationSchema");
 // const CreateContestSchema=require("../models/CreateContestSchema");// Import the student register schema
 const EventSchema = require("../models/EventSchema");
@@ -11,6 +11,7 @@ const jwt = require("jsonwebtoken");
 const sendEmail = require("../helperFunctions/sendEmail");
 const crypto = require("crypto");
 let { authenticatedUser } = require("../helperFunctions/publicHelper");
+const HackHisSchema = require("../models/HackHisSchema");
 
 const registerStudent = async (req, res) => {
   const { email, roll, pass } = req.body;  // Extract the required data from the request body
@@ -348,10 +349,10 @@ const fetchLeaderboardData = async (req, res) => {
   }
 }
 
-const getNotifications = async (req,res) => {
+const getNotifications = async (req, res) => {
   try {
     const notifications = await Notification.find().sort({ ct: -1 });
-    res.status(200).json({notifications: notifications});
+    res.status(200).json({ notifications: notifications });
   }
   catch (error) {
     console.log(error)
@@ -359,6 +360,78 @@ const getNotifications = async (req,res) => {
 
 }
 
+
+const acceptNotifications = async (req, res) => {
+  try {
+    const { notificationId } = req.params;
+
+    const notification = await Notification.findById(notificationId);
+    if (!notification) {
+      return { success: false, message: "Notification not found" };
+    }
+
+    const { tname: teamName, hackid, userid } = notification;
+
+    const tempHack = await HackHisSchema.findOne({ tName:teamName, hackid });
+
+    if(!tempHack){
+      console.log("not found record of hack");
+      return;
+    }
+
+    let allVerified = true;
+
+    for (let member of tempHack.teamMembers) {
+      if (member.email === userid) {
+        member.isVerified = true;
+      }
+      if (!member.isVerified) {
+        allVerified = false;
+      }
+      await tempHack.save();
+    }
+
+    if (allVerified) {
+
+      await userSchema.findOneAndUpdate(
+        { email: tempHack.teamLeader.email },
+        { $push: { hackhist: tempHack } },
+        { new: true, upsert: true }
+      );
+
+      for (const member of tempHack.teamMembers) {
+        await userSchema.findOneAndUpdate(
+          { email: member.email },
+          { $push: { hackhist: tempHack } },
+          { new: true, upsert: true }
+        );
+      }
+
+      await HackHisSchema.findByIdAndDelete(tempHack._id);
+      await Notification.findByIdAndDelete(notificationId);
+
+      return res.status(200).json({ success: true, message: "Notification accepted successfully, your team is registered successfully" });
+    }
+
+    return res.status(200).json({ success: true, message: "Notification accepted successfully" });
+  } catch (error) {
+    console.error("Error in acceptNotification:", error);
+    return res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+
+}
+
+const rejectNotification = async(req,res)=>{
+  try {
+  const {notificationId} = req.params;
+  await Notification.findByIdAndDelete(notificationId)
+  res.status(200).json({message: "rejected succesfully"});
+  }
+  catch(error){
+    console.log("Error in rejectNotification:", error);
+  }
+
+}
 
 
 module.exports = {
@@ -373,5 +446,7 @@ module.exports = {
   getTeamDetails,
   checkRegistration,
   fetchLeaderboardData,
-  getNotifications
+  getNotifications,
+  acceptNotifications,
+  rejectNotification
 };

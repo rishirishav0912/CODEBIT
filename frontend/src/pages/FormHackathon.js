@@ -84,7 +84,7 @@ const FormHackathon = () => {
     const handleAddTeamMember = () => {
         setFormData((prev) => ({
             ...prev,
-            teamMembers: [...prev.teamMembers, { name: "", email: "", phone: "" }],
+            teamMembers: [...prev.teamMembers, { name: "", email: "", phone: ""}],
         }));
     };
 
@@ -240,7 +240,7 @@ const FormHackathon = () => {
                                         <button
                                             type="button"
                                             onClick={() => handleRemoveTeamMember(index)}
-                                            className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded"
+                                            className="px-4 py-2 bg-[#412424] text-[#F8664B] hover:bg-[#351e1e]  font-semibold rounded"
                                         >
                                             Remove
                                         </button>
