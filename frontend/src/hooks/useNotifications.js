@@ -29,7 +29,7 @@ const useNotifications = () => {
     }
 
     const rejectNotification = async(notificationId)=>{
-        const response = await fetch(`http://localhost:4000/acceptNotification/${notificationId}`, {
+        const response = await fetch(`http://localhost:4000/rejectNotification/${notificationId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

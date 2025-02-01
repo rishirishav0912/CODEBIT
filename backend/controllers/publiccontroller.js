@@ -93,11 +93,11 @@ const loginUser = async (req, res) => {
 
         const url = `${process.env.BASE_URL}users/${user._id}/verify/${token.token}`;
 
-        const p = await sendEmail(user.email, "Verify Email", url);
-        console.log(p);
+         await sendEmail(user.email, "Verify Email", url);
+        
 
       }
-
+      return res.status(403).json({ error: "Please verify your email before logging in." });
     }
     const tokene = jwt.sign({ userid }, 'fingerprint_customer');
     // req.session.authorization = {
@@ -147,12 +147,18 @@ const getUserRegisteredHackathons = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    const hackathons = user.hackhist.filter(
+    const userHackathons = user.hackhist.filter(
       (hack) =>
         hack.teamLeader.email === userEmail ||
         hack.teamMembers.some((member) => member.email === userEmail)
     );
-
+    const extraHackathons = await HackHisSchema.find({
+      $or: [
+        { "teamLeader.email": userEmail },
+        { "teamMembers.email": userEmail }
+      ]
+    });
+    const hackathons = [...userHackathons, ...extraHackathons];
     // Respond with the filtered hackathons
     res.status(200).json(hackathons);
   } catch (error) {
