@@ -5,13 +5,16 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { AuthContextProvider } from './context/AuthContext';
 import { CodeProvider } from './context/CodeContext';
+import { DbUpdateProvider } from './context/DBUpdateContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
+    <DbUpdateProvider>
     <AuthContextProvider>
         <CodeProvider>
             <App />
         </CodeProvider>
     </AuthContextProvider>
+    </DbUpdateProvider>
 );
 reportWebVitals();
