@@ -21,12 +21,23 @@ import EditEvent from "./EditEvent";
 import CodeSubmission from "./CodeSubmission.js";
 import EditSubmission from "./EditSubmission.jsx";
 import Notifications from "./Notifications.jsx"
+import { useContext, useEffect, useState } from "react";
+import { DbUpdateContext } from "../context/DBUpdateContext.js";
 
 function NavigatingPage() {
+
+    const { dbChanged } = useContext(DbUpdateContext);
+    const [key, setKey] = useState(0); // Unique key for re-rendering routes
+
+    useEffect(() => {
+        if (dbChanged) {
+            setKey((prevKey) => prevKey + 1); // Trigger re-render of only active page
+        }
+    }, [dbChanged]);
    
     return (
         <div className="Navigating">
-            <Routes>
+            <Routes key={key}>
                 <Route path="/" element={<Home />} />
                 <Route path="/signup" element={<SignUp />} />
                 <Route path="/login" element={<Login />} />
