@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom"; // Import useNavigate
 const FormHackathon = () => {
     const { hackathonId } = useParams(); // Extract hackathonId from URL
     const navigate = useNavigate(); // Initialize useNavigate hook
-
+    const [teamSize, setTeamSize] = useState(0);
     // Extract user details from localStorage
     const userString = localStorage.getItem("user");
     let userId = "";
@@ -49,6 +49,7 @@ const FormHackathon = () => {
                 }
                 const data = await response.json();
                 setProblemStatements(data.themes || []);
+                setTeamSize(data.tSize || 0);
                 setLoading(false);
             } catch (error) {
                 console.error("Error fetching hackathon data:", error);
@@ -82,6 +83,10 @@ const FormHackathon = () => {
     };
 
     const handleAddTeamMember = () => {
+        if (formData.teamMembers.length >= teamSize - 1) { // Ensure max team size is not exceeded
+            window.alert(`You can only have up to ${teamSize} members including the team leader.`);
+            return;
+        }
         setFormData((prev) => ({
             ...prev,
             teamMembers: [...prev.teamMembers, { name: "", email: "", phone: ""}],

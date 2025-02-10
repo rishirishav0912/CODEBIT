@@ -59,7 +59,7 @@ const Leaderboard = () => {
                             <thead>
                                 <tr className="text-[#23d18b]s text-[#A3A3A3] border-b-2 border-[#333333]">
                                     <th className="px-6 py-2 text-[20px]">Rank</th>
-                                    <th className="px-6 py-2 text-[20px]">Name</th>
+                                    <th className="px-6 py-2 text-[20px]">User Id</th>
                                     <th className="px-6 py-2 text-[20px]">Score</th>
                                     <th className="px-6 py-2 text-[20px]">Finish Time</th>
                                     {problems.map((problem, index) => (
@@ -76,7 +76,7 @@ const Leaderboard = () => {
                                         key={index}
                                         className={`text-center border-b-2 border-[#333333] hover:bg-[#232A28] hover:text-[#34D399]`}
                                     >
-                                    {/* ${index % 2 === 0 ? "bg-[#21272e]" : "bg-transparent "
+                                        {/* ${index % 2 === 0 ? "bg-[#21272e]" : "bg-transparent "
                                     } */}
                                         <td className="px-6 py-4 rounded-tl-xl rounded-bl-xl">#{startIndex + index + 1}</td>
                                         <td className="px-6 py-4">{entry.email}</td>
@@ -98,7 +98,7 @@ const Leaderboard = () => {
                                             </td>
                                         ))}
                                         <td
-                                            className="px-1 py-1 rounded-tr-xl rounded-br-xl" 
+                                            className="px-1 py-1 rounded-tr-xl rounded-br-xl"
                                         />
                                     </tr>
                                 ))}

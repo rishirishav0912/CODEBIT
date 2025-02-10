@@ -169,7 +169,7 @@ const ContestProblemPage = () => {
                                                             <thead className="text-[#0EA96E]s text-[#A3A3A3]">
                                                                 <tr className="border-b border-[#333333]">
                                                                     <th className="px-4 py-2 text-left">Rank</th>
-                                                                    <th className="px-4 py-2 text-left">Name</th>
+                                                                    <th className="px-4 py-2 text-left">User Id</th>
                                                                 </tr>
                                                             </thead>
                                                             <tbody className="text-slate-300s text-[#E5E5E5] font-medium">
