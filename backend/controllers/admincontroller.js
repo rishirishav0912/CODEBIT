@@ -9,6 +9,7 @@ const EventSchema = require("../models/EventSchema");
 const ContestSchema = require("../models/ContestSchema");
 const Notification = require("../models/NotificationSchema");
 const HackHisSchema = require("../models/HackHisSchema");
+const sendEmail2 = require("../helperFunctions/sendEmail2");
 const getMails = async (req, res) => {
   try {
     const users = await userSchema.find({}, "email"); // Fetch only email field
@@ -193,7 +194,7 @@ const getThemes = async (req, res) => {
       return res.status(404).json({ message: "Hackathon not found" });
     }
 
-    res.status(200).json({ themes: hackathon.themes });
+    res.status(200).json({ themes: hackathon.themes, tSize: hackathon.tSize });
 
   }
   catch (error) {
@@ -238,13 +239,14 @@ const teamRegister = async (req, res) => {
     if (!teamLeaderExists) {
       return res.status(400).json({ error: "Team leader email is not registered." });
     }
+    
     for (const member of teamMembers) {
       const memberExists = await userSchema.findOne({ email: member.email });
       if (!memberExists) {
         return res.status(400).json({ error: `Team member email ${member.email} is not registered.` });
       }
     }
-
+    
     const teamNameExists = await userSchema.findOne({
       "hackhist.hackid": id,
       "hackhist.tName": teamName,
@@ -265,6 +267,7 @@ const teamRegister = async (req, res) => {
         error: "Team leader is already registered for this hackathon.",
       });
     }
+    console.log("yaha3");
     for (const member of teamMembers) {
       const memberExists = await userSchema.findOne({
         email: member.email,
@@ -277,52 +280,6 @@ const teamRegister = async (req, res) => {
         });
       }
     }
-    // const teamLeaderUpdate = {
-    //   $push: {
-    //     hackhist: {
-    //       hackid: id,
-    //       tName: teamName,
-    //       teamLeader,
-    //       teamMembers,
-    //       submiss: [
-    //         {
-    //           theme: selectedProblem,
-    //           desc:"NA",
-    //           githubLink: "NA",
-    //           videoLink: "",
-    //           liveLink: "",
-    //           pname:"NA"
-    //         },
-    //       ],
-    //     },
-    //   },
-    // };
-    // // // Ensure the team leader email is unique
-
-    // const z=await userSchema.findOneAndUpdate({ email: teamLeader.email }, teamLeaderUpdate);
-
-    // for (const member of teamMembers) {
-    //   const memberUpdate = {
-    //     $push: {
-    //       hackhist: {
-    //         hackid: id,
-    //         tName: teamName,
-    //         teamLeader,
-    //         teamMembers,
-    //         submiss: [
-    //           {
-    //             theme: selectedProblem,
-    //             desc:"NA",
-    //             githubLink: "NA",
-    //             videoLink: "",
-    //             liveLink: "",
-    //             pname:"NA"
-    //           },
-    //         ],
-    //       },
-    //     },
-    //   };
-    //   await userSchema.findOneAndUpdate({ email: member.email }, memberUpdate);
 
     const tempHack = new HackHisSchema({
       hackid: id,
@@ -340,8 +297,34 @@ const teamRegister = async (req, res) => {
         },
       ]
     });
+    
+    if (teamMembers.length == 0) {
+      await userSchema.findOneAndUpdate({ email: teamLeader.email }, {
+        $push: {
+          hackhist: {
+            hackid: id,
+            tName: teamName,
+            teamLeader,
+            teamMembers,
+            submiss: [
+              {
+                theme: selectedProblem,
+                desc: "NA",
+                githubLink: "NA",
+                videoLink: "",
+                liveLink: "",
+                pname: "NA"
+              },
+            ]
+          }
+        }
+      }, { new: true, upsert: true });
+      return res.status(200).json({ message: 'team  is registered successfully.' });
+    }
 
     await tempHack.save();
+
+
     for (const member of teamMembers) {
       const notification = new Notification({
         userid: member.email,
@@ -350,8 +333,12 @@ const teamRegister = async (req, res) => {
         hackid: id,
         tname: teamName
       });
+      
       await notification.save();
+      
+      await sendEmail2(member.email, "New Notification at CODEBIT", "You have a new notification at CODEBIT. Click here to view: http://localhost:3000/notification");
     }
+
     // }
 
     return res.status(201).json({

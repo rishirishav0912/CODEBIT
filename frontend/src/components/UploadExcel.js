@@ -24,7 +24,7 @@ const UploadExcel = () => {
 
     return (
         <div
-            className="border-2 border-[#333333]  h-[300px] 
+            className="border-2 border-[#333333]  h-fit 
             flex flex-col gap-4 items-center justify-center rounded-lg  mx-4 p-4 "
         >
             <div className="text-center text-3xl font-bold text-slate-300">
@@ -47,13 +47,20 @@ const UploadExcel = () => {
                     {fileName ? `Selected: ${fileName}` : 'Choose File'}
                 </label>
             </div>
-            <div className="">
+            <div className=" flex flex-col gap-4">
                 <button
                     className="rounded-lg text-[18px] text-center text-[#34D399] bg-[#1D332D] hover:bg-[#1b2f29] border-2 border-[#174337] font-semibold 
                      hover:cursor-pointer transition delay-100 py-2 px-6"
                     onClick={handleUploadClick}
                 >
                     Upload Excel
+                </button>
+
+                <button
+                    className="rounded-lg text-[18px] text-center text-[#34D399] bg-[#1D332D] hover:bg-[#1b2f29] border-2 border-[#174337] font-semibold 
+                     hover:cursor-pointer transition delay-100 py-2 px-6"
+                >
+                    <a href='Excel_Format.xlsx' download={true}>Download Excel Format</a>
                 </button>
             </div>
         </div>

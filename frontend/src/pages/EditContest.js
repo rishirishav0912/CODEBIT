@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams,useNavigate } from "react-router-dom";
 
 const EditContest = () => {
     const { hackathonId } = useParams();
     const user = JSON.parse(localStorage.getItem("user")); // Retrieve user from localStorage
     const token = user?.tokene || null;
-
+const navigate=useNavigate
     const [formData, setFormData] = useState({
         contestName: "",
         startTime: "",
@@ -146,6 +146,7 @@ const EditContest = () => {
             const result = await response.json();
             console.log("Save successful:", result);
             alert("Contest updated successfully!");
+            navigate("/");
         } catch (error) {
             console.error("Error saving contest changes:", error);
             alert("Failed to save changes.");
